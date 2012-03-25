@@ -9,13 +9,20 @@ Current structure of the project heavly depends on maven build system, packaging
 
 #### How to Use
 
-TODO: describe the usage here
+````bash
+cd ECJ
+mvn install 
+
+cd ../ECJ-Psh
+mvn install
+````
 
 #### License
 
 TODO: put information about the license of ECJ and the license of the Psh interpreter
 
-#### Author
+#### Authors
 
-* Tomasz Kamiński
+ * Tomasz Kamiński
+ * Piotr Jessa
 
