@@ -1,0 +1,39 @@
+
+Generation: 0
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=60.0 Adjusted=0.016393442 Hits=29
+Tree 0:
+ (progn3 (progn3 (if-food-ahead move left)
+     (if-food-ahead right right) (progn2 left
+     move)) (progn3 (if-food-ahead move right)
+     (progn3 left left move) (progn3 right move
+     move)) (progn2 (progn2 move left) (if-food-ahead
+     right left)))
+
+Generation: 1
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=51.0 Adjusted=0.01923077 Hits=38
+Tree 0:
+ (if-food-ahead (if-food-ahead move right)
+     (progn2 (progn3 (progn2 left move) (progn2
+         move left) (if-food-ahead right move)) (progn2
+         (progn3 move left move) (if-food-ahead move
+         left))))
+
+Generation: 2
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=51.0 Adjusted=0.01923077 Hits=38
+Tree 0:
+ (if-food-ahead move (if-food-ahead (if-food-ahead
+     (if-food-ahead (progn2 move left) (progn3
+         right right left)) (progn2 (progn3 left move
+     left) (if-food-ahead move left))) (progn2
+     (progn3 (progn2 left move) (progn2 move left)
+         (if-food-ahead right move)) (progn2 (progn3
+     move left move) (if-food-ahead move left)))))
