@@ -1,0 +1,96 @@
+
+####### threads & checkpointing
+
+evalthreads					= 1
+breedthreads 				= 1
+seed.0 						= time
+
+checkpoint 					= false
+checkpoint-modulo			= 1
+prefix						= psh
+
+
+####### "simple" settings
+
+state						= ec.simple.SimpleEvolutionState
+init						= ec.simple.SimpleInitializer
+finish						= ec.simple.SimpleFinisher
+eval						= ec.simple.SimpleEvaluator
+exch						= ec.simple.SimpleExchanger
+stat						= ec.simple.SimpleStatistics
+
+generations					= 51
+quit-on-run-complete		= true
+
+
+####### Population settings
+
+pop							= ec.Population
+pop.subpops					= 1
+pop.subpop.0				= ec.Subpopulation
+pop.subpop.0.size			= 1024
+pop.subpop.0.duplicate-retries	= 0
+
+
+###### Statistics
+
+stat.file					= $out.stat
+
+
+####### PushGP specific settings
+
+psh.individual.program		= org.spiderland.Psh.Program
+pop.subpop.0.species		= org.ecj.psh.PshSpecies
+pop.subpop.0.species.ind	= org.ecj.psh.PshIndividual
+
+# CHANGE to KozaFitness!
+pop.subpop.0.species.fitness	= ec.simple.SimpleFitness
+
+
+####### Specifying default breeding pipelines parameters
+ 
+# Tournament selection settings
+select.tournament.size			= 7
+
+# Reproduction pipeline settings
+breed.reproduce.source.0 		= ec.select.TournamentSelection
+ 
+# Mutation pipeline settings
+psh.breed.mutate.source.0		= ec.select.TournamentSelection
+psh.breed.mutate.ns.0			= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.mutate.fair			= true
+psh.breed.mutate.fair-range		= 0.30
+
+# Crossover pipeline settings
+psh.breed.xover.source.0		= ec.select.TournamentSelection
+psh.breed.xover.source.1		= same 
+psh.breed.xover.ns.0			= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.xover.ns.1			= same
+
+# Simplification pipeline settings
+psh.breed.simplify.source.0		= ec.select.TournamentSelection
+psh.breed.simplify.steps		= 20
+psh.breed.simplify.flatten-prob	= 0.20
+
+####### Specifying PushGP breeding pipelines 
+
+pop.subpop.0.species.pipe					= ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.num-sources 		= 4
+pop.subpop.0.species.pipe.generate-max		= false
+
+# Crossover pipeline
+pop.subpop.0.species.pipe.source.0			= org.ecj.psh.breed.CrossoverPipeline
+pop.subpop.0.species.pipe.source.0.prob		= 0.70
+
+# Mutation pipeline
+pop.subpop.0.species.pipe.source.1			= org.ecj.psh.breed.MutationPipeline
+pop.subpop.0.species.pipe.source.1.prob		= 0.20
+
+# Simplification pipeline
+pop.subpop.0.species.pipe.source.2			= org.ecj.psh.breed.SimplificationPipeline
+pop.subpop.0.species.pipe.source.2.prob		= 0.05
+
+# Reproduction pipeline
+pop.subpop.0.species.pipe.source.3			= ec.breed.ReproductionPipeline
+pop.subpop.0.species.pipe.source.3.prob		= 0.05
+
