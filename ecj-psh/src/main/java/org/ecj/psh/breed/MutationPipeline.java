@@ -16,8 +16,8 @@ import ec.util.Parameter;
 public class MutationPipeline extends PshBreedingPipeline {
 
 	public static final String P_MUTATION = "mutate";
-	public static final String P_FAIR = "fair";
-	public static final String P_FAIRRANGE = "fair-range";
+	public static final String P_FAIR = "use-fair";
+	public static final String P_FAIRRANGE = "fair-mutation-range";
 	public static final int NUM_SOURCES = 1;
 
 	/** How the pipeline chooses a subtree to mutate */
@@ -57,7 +57,13 @@ public class MutationPipeline extends PshBreedingPipeline {
 				.getInstanceForParameter(p, d, PshNodeSelector.class));
 		nodeSelector.setup(state, p);
 
-		// TODO setup useFairMutation and fairMutationRange from parameters
+		// should we use fair mutation mode?
+		useFairMutation = state.parameters.getBoolean(base.push(P_FAIR),
+				def.push(P_FAIR), true);
+		
+		// fair mutation range
+		fairMutationRange = state.parameters.getFloatWithDefault(base.push(P_FAIRRANGE),
+				def.push(P_FAIRRANGE), 0.3);
 	}
 
 	@Override

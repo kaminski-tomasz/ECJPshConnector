@@ -3,7 +3,7 @@
 
 evalthreads					= 1
 breedthreads 				= 1
-seed.0 						= time
+seed.0 						= 1234
 
 checkpoint 					= false
 checkpoint-modulo			= 1
@@ -19,7 +19,7 @@ eval						= ec.simple.SimpleEvaluator
 exch						= ec.simple.SimpleExchanger
 stat						= ec.simple.SimpleStatistics
 
-generations					= 51
+generations					= 1000
 quit-on-run-complete		= true
 
 
@@ -28,7 +28,7 @@ quit-on-run-complete		= true
 pop							= ec.Population
 pop.subpops					= 1
 pop.subpop.0				= ec.Subpopulation
-pop.subpop.0.size			= 1024
+pop.subpop.0.size			= 200
 pop.subpop.0.duplicate-retries	= 0
 
 
@@ -49,27 +49,27 @@ pop.subpop.0.species.fitness	= ec.simple.SimpleFitness
 ####### Specifying default breeding pipelines parameters
  
 # Tournament selection settings
-select.tournament.size			= 7
+select.tournament.size						= 7
 
 # Reproduction pipeline settings
-breed.reproduce.source.0 		= ec.select.TournamentSelection
+breed.reproduce.source.0 					= ec.select.TournamentSelection
  
 # Mutation pipeline settings
-psh.breed.mutate.source.0		= ec.select.TournamentSelection
-psh.breed.mutate.ns.0			= org.ecj.psh.UnbiasedNodeSelector
-psh.breed.mutate.fair			= true
-psh.breed.mutate.fair-range		= 0.30
+psh.breed.mutate.source.0					= ec.select.TournamentSelection
+psh.breed.mutate.ns.0						= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.mutate.use-fair					= true
+psh.breed.mutate.fair-mutation-range		= 0.30
 
 # Crossover pipeline settings
-psh.breed.xover.source.0		= ec.select.TournamentSelection
-psh.breed.xover.source.1		= same 
-psh.breed.xover.ns.0			= org.ecj.psh.UnbiasedNodeSelector
-psh.breed.xover.ns.1			= same
+psh.breed.xover.source.0					= ec.select.TournamentSelection
+psh.breed.xover.source.1					= same 
+psh.breed.xover.ns.0						= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.xover.ns.1						= same
 
 # Simplification pipeline settings
-psh.breed.simplify.source.0		= ec.select.TournamentSelection
-psh.breed.simplify.steps		= 20
-psh.breed.simplify.flatten-prob	= 0.20
+psh.breed.simplify.source.0					= ec.select.TournamentSelection
+psh.breed.simplify.steps					= 20
+psh.breed.simplify.flatten-prob				= 0.20
 
 ####### Specifying PushGP breeding pipelines 
 
@@ -92,4 +92,21 @@ pop.subpop.0.species.pipe.source.2.prob		= 0.05
 # Reproduction pipeline
 pop.subpop.0.species.pipe.source.3			= ec.breed.ReproductionPipeline
 pop.subpop.0.species.pipe.source.3.prob		= 0.05
+
+
+############ Default Interpreter settings
+
+psh.problem.interpreter.max-random-code-size	= 30
+psh.problem.interpreter.execution-limit			= 100
+psh.problem.interpreter.max-points-in-program	= 100
+
+psh.problem.interpreter.push-frame-mode			= false
+
+psh.problem.interpreter.max-random-integer		= 10
+psh.problem.interpreter.min-random-integer		= -10
+psh.problem.interpreter.random-integer-res		= 1
+
+psh.problem.interpreter.max-random-float		= 10.0
+psh.problem.interpreter.min-random-float		= -10.0
+psh.problem.interpreter.random-float-res		= 0.01
 

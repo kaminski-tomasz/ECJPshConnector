@@ -72,7 +72,9 @@ public class CrossoverPipeline extends PshBreedingPipeline {
 			nodeSelector2.setup(state, p);
 		}
 
-		// TODO setup tossSecondParent
+		// should we toss second parent?
+		tossSecondParent = state.parameters.getBoolean(base.push(P_TOSS),
+				def.push(P_TOSS), false);
 	}
 
 	@Override

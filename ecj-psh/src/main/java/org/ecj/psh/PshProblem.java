@@ -13,15 +13,20 @@ public abstract class PshProblem extends Problem implements SimpleProblemForm {
 
 	public static final String P_PSHPROBLEM = "problem";
 
-	public static final String P_USEFRAMES = "use-frames";
-	public static final String P_MAXRANDINT = "max-rand-int";
-	public static final String P_MINRANDINT = "min-rand-int";
-	public static final String P_RANDINTRES = "rand-int-res";
-	public static final String P_MAXRANDFLOAT = "max-rand-float";
-	public static final String P_MINRANDFLOAT = "min-rand-float";
-	public static final String P_RANDFLOATRES = "rand-float-res";
-	public static final String P_MAXRANDCODESIZE = "max-rand-code-size";
-	public static final String P_MAXPOINTS = "max-points-int-prog";
+	public static final String P_MAXRANDCODESIZE = "max-random-code-size";
+	public static final String P_EXECUTIONLIMIT = "execution-limit";
+	public static final String P_MAXPOINTSINPROG = "max-points-in-program";
+	
+	public static final String P_USEFRAMES = "push-frame-mode";
+	
+	public static final String P_MAXRANDINT = "max-random-integer";
+	public static final String P_MINRANDINT = "min-random-integer";
+	public static final String P_RANDINTRES = "random-integer-res";
+	
+	public static final String P_MAXRANDFLOAT = "max-random-float";
+	public static final String P_MINRANDFLOAT = "min-random-float";
+	public static final String P_RANDFLOATRES = "random-float-res";
+	
 
 	/**
 	 * List of allowed instructions
@@ -36,6 +41,11 @@ public abstract class PshProblem extends Problem implements SimpleProblemForm {
 	/*
 	 * Settings for interpreters. These are loaded from params file
 	 */
+	
+	public int maxRandomCodeSize;
+	public int executionLimit;
+	public int maxPointsInProgram;
+	
 	public boolean useFrames;
 
 	public int maxRandomInt;
@@ -46,9 +56,6 @@ public abstract class PshProblem extends Problem implements SimpleProblemForm {
 	public float minRandomFloat;
 	public float randomFloatResolution;
 
-	public int maxRandomCodeSize;
-	public int maxPointsInProgram;
-
 	/**
 	 * PshProblem defines a default base so your subclass doesn't absolutely
 	 * have to.
@@ -57,13 +64,61 @@ public abstract class PshProblem extends Problem implements SimpleProblemForm {
 	public Parameter defaultBase() {
 		return PshDefaults.base().push(P_PSHPROBLEM);
 	}
-	
+		
 	/**
 	 * Set up prototype for PshProblem.
 	 */
 	@Override
 	public void setup(final EvolutionState state, final Parameter base) {
-		// TODO set up all parameters, initialize instruction set
+		
+		Parameter defInterpreter = defaultBase().push("interpreter");
+		Parameter baseInterpreter = base.push("interpreter");
+				
+		// max. random code size, default 30
+		maxRandomCodeSize = state.parameters.getIntWithDefault(
+				baseInterpreter.push(P_MAXRANDCODESIZE),
+				defInterpreter.push(P_MAXRANDCODESIZE), 30);
+		// execution limit for Push programs
+		executionLimit = state.parameters.getIntWithDefault(
+				baseInterpreter.push(P_EXECUTIONLIMIT),
+				defInterpreter.push(P_EXECUTIONLIMIT), 100);
+		// max number of points in program
+		maxPointsInProgram = state.parameters.getIntWithDefault(
+				baseInterpreter.push(P_MAXPOINTSINPROG),
+				defInterpreter.push(P_MAXPOINTSINPROG), 100);
+		
+		// maximum random integer
+		maxRandomInt = state.parameters.getIntWithDefault(
+				baseInterpreter.push(P_MAXRANDINT),
+				defInterpreter.push(P_MAXRANDINT), 10);
+		// minimum random integer
+		minRandomInt = state.parameters.getIntWithDefault(
+				baseInterpreter.push(P_MINRANDINT),
+				defInterpreter.push(P_MINRANDINT), -10);
+		// random integer resolution
+		randomIntResolution = state.parameters.getIntWithDefault(
+				baseInterpreter.push(P_RANDINTRES),
+				defInterpreter.push(P_RANDINTRES), 1);
+		
+		// maximum random float
+		maxRandomFloat = state.parameters.getFloatWithDefault(
+				baseInterpreter.push(P_MAXRANDFLOAT),
+				defInterpreter.push(P_MAXRANDFLOAT), 10.0);
+		// minimum random float
+		minRandomFloat = state.parameters.getFloatWithDefault(
+				baseInterpreter.push(P_MINRANDFLOAT),
+				defInterpreter.push(P_MINRANDFLOAT), -10.0);
+		// random integer float
+		randomFloatResolution = state.parameters.getFloatWithDefault(
+				baseInterpreter.push(P_RANDFLOATRES),
+				defInterpreter.push(P_RANDFLOATRES), 0.01);
+		
+		// should we use push frame mode
+		useFrames = state.parameters.getBoolean(
+				baseInterpreter.push(P_USEFRAMES),
+				defInterpreter.push(P_USEFRAMES), false);
+		
+		// TODO initialize instruction set
 
 		// construct interpreter with instruction set
 		interpreter = new Interpreter();

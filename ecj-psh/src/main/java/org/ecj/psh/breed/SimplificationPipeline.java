@@ -35,7 +35,15 @@ public class SimplificationPipeline extends PshBreedingPipeline {
 	@Override
 	public void setup(final EvolutionState state, final Parameter base) {
 		super.setup(state, base);
-		// TODO setup simplificationSteps, simplifyByFlattenProb
+		Parameter def = this.defaultBase();
+		
+		// number of simplifications used in reproduction
+		simplificationSteps = state.parameters.getIntWithDefault(
+				base.push(P_STEPS), def.push(P_STEPS), 20);
+		
+		// probability of simplification by flattening
+		simplifyByFlattenProb = state.parameters.getFloatWithDefault(
+				base.push(P_FLATTENPROB), def.push(P_FLATTENPROB), 0.2);
 	}
 
 	@Override
