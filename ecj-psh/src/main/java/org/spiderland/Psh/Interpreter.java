@@ -19,6 +19,8 @@ package org.spiderland.Psh;
 import java.io.Serializable;
 import java.util.*;
 
+import ec.EvolutionState;
+
 /**
  * The Push language interpreter.
  */
@@ -72,12 +74,45 @@ public class Interpreter implements Serializable {
 	protected int _maxRandomCodeSize;
 	protected int _maxPointsInProgram;
 
-	protected Random _RNG = new Random();
-
 	protected InputPusher _inputPusher = new InputPusher();
 
-	public Interpreter() {
-		
+	public Interpreter() { }
+
+	/**
+	 * Used when cloning the PshProblem in order to achieve Problem instances
+	 * sharing common objects, except current interpreter state specified by internal stacks
+	 * @return
+	 */
+	public Interpreter cloneWithNewStacks() {
+		try {
+			Interpreter newInt = (Interpreter) super.clone(); 
+			// Create the stacks
+			newInt._intFrameStack = new ObjectStack();
+			newInt._floatFrameStack = new ObjectStack();
+			newInt._boolFrameStack = new ObjectStack();
+			newInt._codeFrameStack = new ObjectStack();
+			newInt._nameFrameStack = new ObjectStack();
+			newInt.PushStacks();
+			
+			newInt._execStack = new ObjectStack();
+			newInt._customStacks = new ArrayList<Stack>();
+			
+			newInt._totalStepsTaken = 0;
+			newInt._evaluationExecutions = 0; 
+			
+			// the rest of things are copied by reference, so we 
+			// can use the same settings many times
+			return newInt;
+		} catch (CloneNotSupportedException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Initializes interpreter with whole instruction set and generators
+	 */
+	public void InitializeInterpreter() {
+
 		_useFrames = false;
 		PushStacks();
 
@@ -177,7 +212,7 @@ public class Interpreter implements Serializable {
 		_generators.put("float.erc", new FloatAtomGenerator());
 		_generators.put("integer.erc", new IntAtomGenerator());
 	}
-
+	
 	/**
 	 * Enables experimental Push "frames"
 	 * 
@@ -345,8 +380,8 @@ public class Interpreter implements Serializable {
 	 * @return The number of instructions executed.
 	 */
 
-	public int Execute(Program inProgram) {
-		return Execute(inProgram, -1);
+	public int Execute(EvolutionState state, int threadnum, Program inProgram) {
+		return Execute(state, threadnum, inProgram, -1);
 	}
 
 	/**
@@ -357,10 +392,10 @@ public class Interpreter implements Serializable {
 	 * @return The number of instructions executed.
 	 */
 
-	public int Execute(Program inProgram, int inMaxSteps) {
+	public int Execute(EvolutionState state, int threadnum, Program inProgram, int inMaxSteps) {
 		_evaluationExecutions++;
 		LoadProgram(inProgram); // Initializes program
-		return Step(inMaxSteps);
+		return Step(state, threadnum, inMaxSteps);
 	}
 
 	/**
@@ -386,10 +421,10 @@ public class Interpreter implements Serializable {
 	 * @return The number of instructions executed.
 	 */
 
-	public int Step(int inMaxSteps) {
+	public int Step(EvolutionState state, int threadnum, int inMaxSteps) {
 		int executed = 0;
 		while (inMaxSteps != 0 && _execStack.size() > 0) {			
-			ExecuteInstruction(_execStack.pop());
+			ExecuteInstruction(state, threadnum, _execStack.pop());
 			inMaxSteps--;
 			executed++;
 		}
@@ -399,7 +434,7 @@ public class Interpreter implements Serializable {
 		return executed;
 	}
 
-	public int ExecuteInstruction(Object inObject) {
+	public int ExecuteInstruction(EvolutionState state, int threadnum, Object inObject) {
 
 		if (inObject instanceof Program) {
 			Program p = (Program) inObject;
@@ -428,7 +463,7 @@ public class Interpreter implements Serializable {
 		}
 
 		if (inObject instanceof Instruction) {
-			((Instruction) inObject).Execute(this);
+			((Instruction) inObject).Execute(state, threadnum, this);
 			return 0;
 		}
 
@@ -436,7 +471,7 @@ public class Interpreter implements Serializable {
 			Instruction i = _instructions.get(inObject);
 
 			if (i != null) {
-				i.Execute(this);
+				i.Execute(state, threadnum, this);
 			} else {
 				_nameStack.push(inObject);
 			}
@@ -714,10 +749,10 @@ public class Interpreter implements Serializable {
 	 *         instruction set.
 	 */
 
-	public Object RandomAtom() {
-		int index = _RNG.nextInt(_randomGenerators.size());
+	public Object RandomAtom(EvolutionState state, int threadnum) {
+		int index = state.random[threadnum].nextInt(_randomGenerators.size());
 
-		return _randomGenerators.get(index).Generate(this);
+		return _randomGenerators.get(index).Generate(state, threadnum, this);
 	}
 
 	/**
@@ -728,19 +763,19 @@ public class Interpreter implements Serializable {
 	 * @return A random Push program of the given size.
 	 */
 
-	public Program RandomCode(int inSize) {
+	public Program RandomCode(EvolutionState state, int threadnum, int inSize) {
 		Program p = new Program();
 
-		List<Integer> distribution = RandomCodeDistribution(inSize - 1,
+		List<Integer> distribution = RandomCodeDistribution(state, threadnum, inSize - 1,
 				inSize - 1);
 
 		for (int i = 0; i < distribution.size(); i++) {
 			int count = distribution.get(i);
 
 			if (count == 1) {
-				p.push(RandomAtom());
+				p.push(RandomAtom(state, threadnum));
 			} else {
-				p.push(RandomCode(count));
+				p.push(RandomCode(state, threadnum, count));
 			}
 		}
 
@@ -760,10 +795,10 @@ public class Interpreter implements Serializable {
 	 * @return A list of integers representing the size distribution.
 	 */
 
-	public List<Integer> RandomCodeDistribution(int inCount, int inMaxElements) {
+	public static List<Integer> RandomCodeDistribution(EvolutionState state, int threadnum, int inCount, int inMaxElements) {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 
-		RandomCodeDistribution(result, inCount, inMaxElements);
+		RandomCodeDistribution(state, threadnum, result, inCount, inMaxElements);
 
 		Collections.shuffle(result);
 
@@ -781,22 +816,23 @@ public class Interpreter implements Serializable {
 	 *            The maxmimum number of elements at this level.
 	 */
 
-	private void RandomCodeDistribution(List<Integer> ioList, int inCount,
+	private static void RandomCodeDistribution(EvolutionState state, int threadnum, 
+			List<Integer> ioList, int inCount,
 			int inMaxElements) {
 		if (inCount < 1)
 			return;
 
-		int thisSize = inCount < 2 ? 1 : (_RNG.nextInt(inCount) + 1);
+		int thisSize = inCount < 2 ? 1 : (state.random[threadnum].nextInt(inCount) + 1);
 
 		ioList.add(thisSize);
 
-		RandomCodeDistribution(ioList, inCount - thisSize, inMaxElements - 1);
+		RandomCodeDistribution(state, threadnum, ioList, inCount - thisSize, inMaxElements - 1);
 	}
 
 	abstract class AtomGenerator implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		abstract Object Generate(Interpreter inInterpreter);
+		abstract Object Generate(EvolutionState state, int threadnum, Interpreter inInterpreter);
 	}
 
 	private class InstructionAtomGenerator extends AtomGenerator {
@@ -808,7 +844,7 @@ public class Interpreter implements Serializable {
 			_instruction = inInstructionName;
 		}
 
-		Object Generate(Interpreter inInterpreter) {
+		Object Generate(EvolutionState state, int threadnum, Interpreter inInterpreter) {
 			return _instruction;
 		}
 	}
@@ -816,8 +852,8 @@ public class Interpreter implements Serializable {
 	private class FloatAtomGenerator extends AtomGenerator {
 		private static final long serialVersionUID = 1L;
 
-		Object Generate(Interpreter inInterpreter) {
-			float r = _RNG.nextFloat() * (_maxRandomFloat - _minRandomFloat);
+		Object Generate(EvolutionState state, int threadnum, Interpreter inInterpreter) {
+			float r = state.random[threadnum].nextFloat() * (_maxRandomFloat - _minRandomFloat);
 
 			r -= (r % _randomFloatResolution);
 
@@ -828,8 +864,8 @@ public class Interpreter implements Serializable {
 	private class IntAtomGenerator extends AtomGenerator {
 		private static final long serialVersionUID = 1L;
 
-		Object Generate(Interpreter inInterpreter) {
-			int r = _RNG.nextInt(_maxRandomInt - _minRandomInt);
+		Object Generate(EvolutionState state, int threadnum, Interpreter inInterpreter) {
+			int r = state.random[threadnum].nextInt(_maxRandomInt - _minRandomInt);
 
 			r -= (r % _randomIntResolution);
 

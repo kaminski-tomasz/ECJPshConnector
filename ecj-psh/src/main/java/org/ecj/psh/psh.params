@@ -39,7 +39,6 @@ stat.file					= $out.stat
 
 ####### PushGP specific settings
 
-psh.individual.program		= org.spiderland.Psh.Program
 pop.subpop.0.species		= org.ecj.psh.PshSpecies
 pop.subpop.0.species.ind	= org.ecj.psh.PshIndividual
 

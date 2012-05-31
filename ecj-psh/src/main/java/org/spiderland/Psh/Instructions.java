@@ -16,7 +16,7 @@
 
 package org.spiderland.Psh;
 
-import java.util.Random;
+import ec.EvolutionState;
 
 //
 // All instructions 
@@ -59,7 +59,7 @@ class Quote extends Instruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		ObjectStack cstack = inI.codeStack();
 		ObjectStack estack = inI.execStack();
 
@@ -76,7 +76,7 @@ class Pop extends StackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		if (_stack.size() > 0)
 			_stack.popdiscard();
 	}
@@ -90,7 +90,7 @@ class Flush extends StackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		_stack.clear();
 	}
 }
@@ -103,7 +103,7 @@ class Dup extends StackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		_stack.dup();
 	}
 }
@@ -116,7 +116,7 @@ class Rot extends StackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		if (_stack.size() > 2)
 			_stack.rot();
 	}
@@ -130,7 +130,7 @@ class Shove extends StackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack iStack = inI.intStack();
 		
 		if (iStack.size() > 0) {
@@ -153,7 +153,7 @@ class Swap extends StackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		if (_stack.size() > 1)
 			_stack.swap();
 	}
@@ -167,7 +167,7 @@ class Yank extends StackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack iStack = inI.intStack();
 		
 		if (iStack.size() > 0) {
@@ -190,7 +190,7 @@ class YankDup extends StackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack iStack = inI.intStack();
 		
 		if (iStack.size() > 0) {
@@ -213,7 +213,7 @@ class Depth extends StackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack stack = inI.intStack();
 		stack.push(_stack.size());
 	}
@@ -229,7 +229,7 @@ class IntegerConstant extends Instruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		inI.intStack().push(_value);
 	}
 }
@@ -244,7 +244,7 @@ class FloatConstant extends Instruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		inI.floatStack().push(_value);
 	}
 }
@@ -259,7 +259,7 @@ class BooleanConstant extends Instruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		inI.boolStack().push(_value);
 	}
 }
@@ -275,7 +275,7 @@ class ObjectConstant extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		_stack.push(_value);
 	}
 }
@@ -291,7 +291,7 @@ abstract class BinaryIntegerInstruction extends Instruction {
 	abstract int BinaryOperator(int inA, int inB);
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack stack = inI.intStack();
 
 		if (stack.size() > 1) {
@@ -463,7 +463,7 @@ abstract class UnaryIntInstruction extends Instruction {
 	abstract int UnaryOperator(int inValue);
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack stack = inI.intStack();
 
 		if (stack.size() > 0)
@@ -516,18 +516,15 @@ class IntegerLn extends UnaryIntInstruction {
 
 class IntegerRand extends Instruction {
 	private static final long serialVersionUID = 1L;
-	
-	Random _RNG;
-	
+		
 	IntegerRand(){
-		_RNG = new Random();
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		int range = (inI._maxRandomInt - inI._minRandomInt)
 				/ inI._randomIntResolution;
-		int randInt = (_RNG.nextInt(range) * inI._randomIntResolution)
+		int randInt = (state.random[threadnum].nextInt(range) * inI._randomIntResolution)
 				+ inI._minRandomInt;
 		inI.intStack().push(randInt);
 	}
@@ -541,7 +538,7 @@ class IntegerFromFloat extends Instruction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack iStack = inI.intStack();
 		floatStack fStack = inI.floatStack();
 		
@@ -555,7 +552,7 @@ class IntegerFromBoolean extends Instruction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		booleanStack bStack = inI.boolStack();
 		intStack iStack = inI.intStack();
 		
@@ -580,7 +577,7 @@ abstract class BinaryIntegerBoolInstruction extends Instruction {
 	abstract boolean BinaryOperator(int inA, int inB);
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack istack = inI.intStack();
 		booleanStack bstack = inI.boolStack();
 
@@ -630,7 +627,7 @@ abstract class BinaryFloatInstruction extends Instruction {
 	abstract float BinaryOperator(float inA, float inB);
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		floatStack stack = inI.floatStack();
 
 		if (stack.size() > 1) {
@@ -800,7 +797,7 @@ abstract class UnaryFloatInstruction extends Instruction {
 	abstract float UnaryOperator(float inValue);
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		floatStack stack = inI.floatStack();
 
 		if (stack.size() > 0)
@@ -909,21 +906,16 @@ class FloatLn extends UnaryFloatInstruction {
 
 class FloatRand extends Instruction {
 	private static final long serialVersionUID = 1L;
-	
-	Random _RNG;
-	
+		
 	FloatRand(){
-		_RNG = new Random();
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
-		
-		
-		
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
+				
 		float range = (inI._maxRandomFloat - inI._minRandomFloat)
 				/ inI._randomFloatResolution;
-		float randFloat = (_RNG.nextFloat() * range * inI._randomFloatResolution)
+		float randFloat = (state.random[threadnum].nextFloat() * range * inI._randomFloatResolution)
 				+ inI._minRandomFloat;
 		inI.floatStack().push(randFloat);
 	}
@@ -937,7 +929,7 @@ class FloatFromInteger extends Instruction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack iStack = inI.intStack();
 		floatStack fStack = inI.floatStack();
 		
@@ -951,7 +943,7 @@ class FloatFromBoolean extends Instruction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		booleanStack bStack = inI.boolStack();
 		floatStack fStack = inI.floatStack();
 		
@@ -976,7 +968,7 @@ abstract class BinaryFloatBoolInstruction extends Instruction {
 	abstract boolean BinaryOperator(float inA, float inB);
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		floatStack fstack = inI.floatStack();
 		booleanStack bstack = inI.boolStack();
 
@@ -1027,7 +1019,7 @@ abstract class BinaryBoolInstruction extends Instruction {
 	abstract boolean BinaryOperator(boolean inA, boolean inB);
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		booleanStack stack = inI.boolStack();
 
 		if (stack.size() > 1) {
@@ -1079,7 +1071,7 @@ class BoolNot extends Instruction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		if (inI.boolStack().size() > 0)
 			inI.boolStack().push(!inI.boolStack().pop());
 	}
@@ -1088,15 +1080,12 @@ class BoolNot extends Instruction {
 class BoolRand extends Instruction {
 	private static final long serialVersionUID = 1L;
 	
-	Random _RNG;
-	
 	BoolRand(){
-		_RNG = new Random();
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
-		inI.boolStack().push(_RNG.nextBoolean());
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
+		inI.boolStack().push(state.random[threadnum].nextBoolean());
 	}
 }
 
@@ -1108,7 +1097,7 @@ class BooleanFromInteger extends Instruction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		booleanStack bStack = inI.boolStack();
 		intStack iStack = inI.intStack();
 		
@@ -1122,7 +1111,7 @@ class BooleanFromFloat extends Instruction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		booleanStack bStack = inI.boolStack();
 		floatStack fStack = inI.floatStack();
 		
@@ -1146,7 +1135,7 @@ class InputInN extends Instruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		inI.getInputPusher().pushInput(inI, index);
 	}
 }
@@ -1159,7 +1148,7 @@ class InputInAll extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 
 		if (_stack.size() > 0) {
 			for (int index = 0; index < _stack.size(); index++) {
@@ -1177,7 +1166,7 @@ class InputInRev extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 
 		if (_stack.size() > 0) {
 			for (int index = _stack.size() - 1; index >= 0; index--) {
@@ -1195,7 +1184,7 @@ class InputIndex extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack istack = inI.intStack();
 
 		if (istack.size() > 0 && _stack.size() > 0) {
@@ -1227,7 +1216,7 @@ class CodeDoRange extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack istack = inI.intStack();
 		ObjectStack estack = inI.execStack();
 
@@ -1269,7 +1258,7 @@ class CodeDoTimes extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack istack = inI.intStack();
 		ObjectStack estack = inI.execStack();
 
@@ -1317,7 +1306,7 @@ class CodeDoCount extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack istack = inI.intStack();
 		ObjectStack estack = inI.execStack();
 
@@ -1356,7 +1345,7 @@ class CodeFromBoolean extends Instruction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		ObjectStack codeStack = inI.codeStack();
 		booleanStack bStack = inI.boolStack();
 		
@@ -1370,7 +1359,7 @@ class CodeFromInteger extends Instruction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		ObjectStack codeStack = inI.codeStack();
 		intStack iStack = inI.intStack();
 		
@@ -1384,7 +1373,7 @@ class CodeFromFloat extends Instruction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		ObjectStack codeStack = inI.codeStack();
 		floatStack fStack = inI.floatStack();
 		
@@ -1404,7 +1393,7 @@ class ExecDoRange extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack istack = inI.intStack();
 		ObjectStack estack = inI.execStack();
 
@@ -1447,7 +1436,7 @@ class ExecDoTimes extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack istack = inI.intStack();
 		ObjectStack estack = inI.execStack();
 
@@ -1494,7 +1483,7 @@ class ExecDoCount extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		intStack istack = inI.intStack();
 		ObjectStack estack = inI.execStack();
 
@@ -1529,7 +1518,7 @@ class ExecK extends ObjectStackInstruction {
 	}
 	
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		// Removes the second item on the stack
 		if(_stack.size() > 1){
 			_stack.swap();
@@ -1549,7 +1538,7 @@ class ExecS extends ObjectStackInstruction {
 	}
 	
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		// Removes the second item on the stack
 		if(_stack.size() > 2){
 			Object a = _stack.pop();
@@ -1585,7 +1574,7 @@ class ExecY extends ObjectStackInstruction {
 	}
 	
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		// Removes the second item on the stack
 		if(_stack.size() > 0){
 			Object a = _stack.pop();
@@ -1604,7 +1593,7 @@ class ExecNoop extends Instruction {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		// Does Nothing
 	}
 }
@@ -1612,15 +1601,12 @@ class ExecNoop extends Instruction {
 class RandomPushCode extends ObjectStackInstruction {
 	private static final long serialVersionUID = 1L;
 	
-	Random _RNG;
-	
 	RandomPushCode(ObjectStack inStack) {
 		super(inStack);
-		_RNG = new Random();
 	}
 	
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		int randCodeMaxPoints = 0;
 		
 		if (inI.intStack().size() > 0) {
@@ -1630,11 +1616,11 @@ class RandomPushCode extends ObjectStackInstruction {
 
 			int randomCodeSize;
 			if (randCodeMaxPoints > 0) {
-				randomCodeSize = _RNG.nextInt(randCodeMaxPoints) + 2;
+				randomCodeSize = state.random[threadnum].nextInt(randCodeMaxPoints) + 2;
 			} else {
 				randomCodeSize = 2;
 			}
-			Program p = inI.RandomCode(randomCodeSize);
+			Program p = inI.RandomCode(state, threadnum, randomCodeSize);
 
 			_stack.push(p);
 		}
@@ -1650,7 +1636,7 @@ class ObjectEquals extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		booleanStack bstack = inI.boolStack();
 
 		if (_stack.size() > 1) {
@@ -1670,7 +1656,7 @@ class If extends ObjectStackInstruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		booleanStack bstack = inI.boolStack();
 		ObjectStack estack = inI.execStack();
 
@@ -1699,7 +1685,7 @@ class PopFrame extends Instruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		// floatStack fstack = inI.floatStack();
 		// float total = fstack.accumulate();
 
@@ -1720,7 +1706,7 @@ class PushFrame extends Instruction {
 	}
 
 	@Override
-	public void Execute(Interpreter inI) {
+	public void Execute(EvolutionState state, int threadnum, Interpreter inI) {
 		inI.PushFrame();
 	}
 }
