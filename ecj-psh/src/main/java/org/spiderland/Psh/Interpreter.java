@@ -76,43 +76,7 @@ public class Interpreter implements Serializable {
 
 	protected InputPusher _inputPusher = new InputPusher();
 
-	public Interpreter() { }
-
-	/**
-	 * Used when cloning the PshProblem in order to achieve Problem instances
-	 * sharing common objects, except current interpreter state specified by internal stacks
-	 * @return
-	 */
-	public Interpreter cloneWithNewStacks() {
-		try {
-			Interpreter newInt = (Interpreter) super.clone(); 
-			// Create the stacks
-			newInt._intFrameStack = new ObjectStack();
-			newInt._floatFrameStack = new ObjectStack();
-			newInt._boolFrameStack = new ObjectStack();
-			newInt._codeFrameStack = new ObjectStack();
-			newInt._nameFrameStack = new ObjectStack();
-			newInt.PushStacks();
-			
-			newInt._execStack = new ObjectStack();
-			newInt._customStacks = new ArrayList<Stack>();
-			
-			newInt._totalStepsTaken = 0;
-			newInt._evaluationExecutions = 0; 
-			
-			// the rest of things are copied by reference, so we 
-			// can use the same settings many times
-			return newInt;
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
-	}
-
-	/**
-	 * Initializes interpreter with whole instruction set and generators
-	 */
-	public void InitializeInterpreter() {
-
+	public Interpreter() {
 		_useFrames = false;
 		PushStacks();
 

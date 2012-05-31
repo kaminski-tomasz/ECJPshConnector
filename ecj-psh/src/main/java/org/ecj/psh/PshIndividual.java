@@ -12,12 +12,10 @@ import ec.util.Parameter;
 /**
  * Subclass of ec.Individual which contains Push program
  * 
- * @author Tomek
+ * @author Tomasz Kamiński
  * 
  */
 public class PshIndividual extends Individual {
-
-	public static final String P_PROGRAM = "program";
 
 	/**
 	 * Push program (an inherited object stack)
@@ -29,6 +27,14 @@ public class PshIndividual extends Individual {
 		return PshDefaults.base().push(P_INDIVIDUAL);
 	}
 
+	@Override
+	public Object clone() {
+		PshIndividual ind = (PshIndividual) super.clone();
+		// deep-clone involves copying entire program code
+		ind.program = new Program(this.program);
+		return ind;
+	}
+	
 	/**
 	 * Sets up a prototypical PshIndividual with those features which it shares
 	 * with other PshIndividuals in its species, and nothing more.
@@ -38,8 +44,10 @@ public class PshIndividual extends Individual {
 		super.setup(state, base);
 		Parameter def = defaultBase();
 		evaluated = false;
-		this.program = (Program) (state.parameters.getInstanceForParameterEq(
-				base.push(P_PROGRAM), def.push(P_PROGRAM), Program.class));
+		// create empty program (empty object list)
+		// TODO maybe Program class should be parametrized, think about it.
+		//		So far we don't need it
+		this.program = new Program();
 	}
 
 	@Override
@@ -47,12 +55,14 @@ public class PshIndividual extends Individual {
 		if (!(this.getClass().equals(ind.getClass())))
 			return false; // PshIndividuals are special.
 		PshIndividual i = (PshIndividual) ind;
-		return this.program.equals(i.program);
+		return i.program != null && this.program.equals(i.program);
 	}
 
 	@Override
 	public int hashCode() {
-		// FIXME Program isn't hashed properly
+		// FIXME Program isn't hashed properly. But I wonder whether we need this
+		// as long as we don't bother with identical individuals chosen randomly
+		// during reproduction step?
 		return this.program.hashCode();
 	}
 
