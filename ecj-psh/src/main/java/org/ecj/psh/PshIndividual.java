@@ -28,7 +28,7 @@ public class PshIndividual extends Individual {
 	}
 
 	@Override
-	public Object clone() {
+	public PshIndividual clone() {
 		PshIndividual ind = (PshIndividual) super.clone();
 		// deep-clone involves copying entire program code
 		ind.program = new Program(this.program);

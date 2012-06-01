@@ -27,7 +27,6 @@ public abstract class PshProblem extends Problem implements SimpleProblemForm {
 	public static final String P_MINRANDFLOAT = "min-random-float";
 	public static final String P_RANDFLOATRES = "random-float-res";
 	
-
 	/**
 	 * List of allowed instructions
 	 */
@@ -64,7 +63,13 @@ public abstract class PshProblem extends Problem implements SimpleProblemForm {
 	public Parameter defaultBase() {
 		return PshDefaults.base().push(P_PSHPROBLEM);
 	}
-		
+	
+	/**
+	 * Sets up the instruction list
+	 * TODO should be loaded from file!
+	 */
+	public abstract void setupInstructionList();
+	
 	/**
 	 * Set up prototype for PshProblem.
 	 */
@@ -73,7 +78,7 @@ public abstract class PshProblem extends Problem implements SimpleProblemForm {
 		
 		Parameter defInterpreter = defaultBase().push("interpreter");
 		Parameter baseInterpreter = base.push("interpreter");
-				
+
 		// max. random code size, default 30
 		maxRandomCodeSize = state.parameters.getIntWithDefault(
 				baseInterpreter.push(P_MAXRANDCODESIZE),
@@ -118,9 +123,9 @@ public abstract class PshProblem extends Problem implements SimpleProblemForm {
 				baseInterpreter.push(P_USEFRAMES),
 				defInterpreter.push(P_USEFRAMES), false);
 		
-		// TODO initialize instruction set
-
-		// construct interpreter with instruction set
+		this.setupInstructionList();
+		
+		// construct interpreter with instruction list
 		interpreter = new Interpreter();
 		interpreter.SetInstructions(instructionList);
 		interpreter.SetRandomParameters(minRandomInt, maxRandomInt,

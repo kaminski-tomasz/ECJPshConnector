@@ -1,0 +1,36 @@
+
+####### Simple float symbolic regression demo
+
+seed.0						= time
+
+parent.0					= ../psh.params
+eval.problem				= org.ecj.psh.floatreg.FloatRegressionProblem
+
+generations					= 1050
+
+# Mutation pipeline settings
+psh.breed.mutate.source.0					= ec.select.RandomSelection
+psh.breed.mutate.ns.0						= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.mutate.use-fair					= true
+psh.breed.mutate.fair-mutation-range		= 0.30
+
+
+select.tournament.size						= 2
+
+####### Specifying PushGP breeding pipelines 
+
+pop.subpop.0.species.pipe					= org.ecj.psh.breed.MutationPipeline
+pop.subpop.0.size							= 200
+psh.breed.mutate.use-fair					= false
+
+############ Interpreter settings
+
+psh.problem.interpreter.max-random-code-size	= 20
+psh.problem.interpreter.execution-limit			= 1000
+psh.problem.interpreter.max-points-in-program	= 20
+
+psh.problem.interpreter.max-random-float		= 100.0
+psh.problem.interpreter.min-random-float		= -100.0
+psh.problem.interpreter.random-float-res		= 0.01
+
+print-unaccessed-params	= true

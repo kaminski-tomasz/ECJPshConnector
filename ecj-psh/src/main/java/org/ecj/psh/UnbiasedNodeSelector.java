@@ -7,10 +7,10 @@ import ec.gp.koza.KozaNodeSelector;
 import ec.util.Parameter;
 
 /**
- * Node selector which picks Push program nodes randomly 
+ * Node selector which picks Push program nodes randomly
  * 
  * @author Tomasz Kamiñski
- *
+ * 
  */
 public class UnbiasedNodeSelector implements PshNodeSelector {
 
@@ -40,8 +40,15 @@ public class UnbiasedNodeSelector implements PshNodeSelector {
 	@Override
 	public int pickNode(EvolutionState state, int subpopulation, int thread,
 			PshIndividual ind) {
-		// TODO pick random node from PushGP program code
-		return 0;
+		int totalSize = ind.program.programsize();
+		int selectedNode = 0;
+		if (totalSize <= 1) {
+			selectedNode = 0;
+		} else {
+			// choosing node randomly
+			selectedNode = state.random[thread].nextInt(totalSize);
+		}
+		return selectedNode;
 	}
 
 	@Override
