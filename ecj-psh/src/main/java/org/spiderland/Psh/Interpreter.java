@@ -17,7 +17,11 @@
 package org.spiderland.Psh;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import ec.EvolutionState;
 
@@ -759,13 +763,18 @@ public class Interpreter implements Serializable {
 	 * @return A list of integers representing the size distribution.
 	 */
 
-	public static List<Integer> RandomCodeDistribution(EvolutionState state, int threadnum, int inCount, int inMaxElements) {
+	public List<Integer> RandomCodeDistribution(EvolutionState state, int threadnum, int inCount, int inMaxElements) {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 
 		RandomCodeDistribution(state, threadnum, result, inCount, inMaxElements);
-
-		Collections.shuffle(result);
-
+	
+		for (int i = 0; i < result.size(); i++) {
+			int j = state.random[threadnum].nextInt(result.size());
+			int iElem = result.get(i);
+			result.set(i, result.get(j));
+			result.set(j, iElem);
+		}
+		
 		return result;
 	}
 
@@ -780,7 +789,7 @@ public class Interpreter implements Serializable {
 	 *            The maxmimum number of elements at this level.
 	 */
 
-	private static void RandomCodeDistribution(EvolutionState state, int threadnum, 
+	private void RandomCodeDistribution(EvolutionState state, int threadnum, 
 			List<Integer> ioList, int inCount,
 			int inMaxElements) {
 		if (inCount < 1)
