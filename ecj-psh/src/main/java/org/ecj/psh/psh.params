@@ -18,7 +18,6 @@ init										= ec.simple.SimpleInitializer
 finish										= ec.simple.SimpleFinisher
 eval										= ec.simple.SimpleEvaluator
 exch										= ec.simple.SimpleExchanger
-stat										= ec.simple.SimpleStatistics
 
 generations									= 1000
 quit-on-run-complete						= true
@@ -35,6 +34,7 @@ pop.subpop.0.duplicate-retries				= 0
 
 ###### Statistics
 
+stat										= ec.simple.SimpleStatistics
 stat.file									= $out.stat
 
 

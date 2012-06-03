@@ -1,36 +1,75 @@
 
 ####### Simple float symbolic regression demo
 
-seed.0						= time
+evalthreads									= 1
+breedthreads 								= 1
+#seed.0 										= 44328
+seed.0 										= time
+seed.1 										= time
 
-parent.0					= ../psh.params
-eval.problem				= org.ecj.psh.floatreg.FloatRegressionProblem
+parent.0									= ../psh.params
+eval.problem								= org.ecj.psh.floatreg.FloatRegressionProblem
 
-generations					= 1050
+generations									= 1000
+pop.subpop.0.size							= 200
 
+ 
+# Tournament selection settings
+select.tournament.size						= 7
+
+# Reproduction pipeline settings
+breed.reproduce.source.0 					= ec.select.TournamentSelection
+ 
 # Mutation pipeline settings
-psh.breed.mutate.source.0					= ec.select.RandomSelection
+psh.breed.mutate.source.0					= ec.select.TournamentSelection
 psh.breed.mutate.ns.0						= org.ecj.psh.UnbiasedNodeSelector
 psh.breed.mutate.use-fair					= true
 psh.breed.mutate.fair-mutation-range		= 0.30
 
+# Crossover pipeline settings
+psh.breed.xover.source.0					= ec.select.TournamentSelection
+psh.breed.xover.source.1					= same 
+psh.breed.xover.ns.0						= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.xover.ns.1						= same
 
-select.tournament.size						= 2
+# Simplification pipeline settings
+psh.breed.simplify.source.0					= ec.select.TournamentSelection
+psh.breed.simplify.steps					= 20
+psh.breed.simplify.flatten-prob				= 0.20
 
-####### Specifying PushGP breeding pipelines 
 
-pop.subpop.0.species.pipe					= org.ecj.psh.breed.MutationPipeline
-pop.subpop.0.size							= 200
-psh.breed.mutate.use-fair					= false
+########### Pipelines
+
+pop.subpop.0.species.pipe					= ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.num-sources 		= 4
+pop.subpop.0.species.pipe.generate-max		= false
+
+# Crossover pipeline
+pop.subpop.0.species.pipe.source.0			= org.ecj.psh.breed.CrossoverPipeline
+pop.subpop.0.species.pipe.source.0.prob		= 0.70
+
+# Mutation pipeline
+pop.subpop.0.species.pipe.source.1			= org.ecj.psh.breed.MutationPipeline
+pop.subpop.0.species.pipe.source.1.prob		= 0.20
+
+# Simplification pipeline
+pop.subpop.0.species.pipe.source.2			= org.ecj.psh.breed.SimplificationPipeline
+pop.subpop.0.species.pipe.source.2.prob		= 0.05
+
+# Reproduction pipeline
+pop.subpop.0.species.pipe.source.3			= ec.breed.ReproductionPipeline
+pop.subpop.0.species.pipe.source.3.prob		= 0.05
 
 ############ Interpreter settings
 
-psh.problem.interpreter.max-random-code-size	= 20
-psh.problem.interpreter.execution-limit			= 1000
-psh.problem.interpreter.max-points-in-program	= 20
+psh.problem.interpreter.max-random-code-size	= 30
+psh.problem.interpreter.execution-limit			= 100
+psh.problem.interpreter.max-points-in-program	= 50
 
-psh.problem.interpreter.max-random-float		= 100.0
-psh.problem.interpreter.min-random-float		= -100.0
-psh.problem.interpreter.random-float-res		= 0.01
+psh.problem.interpreter.max-random-float		= 10.0
+psh.problem.interpreter.min-random-float		= -10.0
+psh.problem.interpreter.random-float-res		= 1.00
 
+#print-params = true
 print-unaccessed-params	= true
+#print-accessed-params	= true

@@ -744,6 +744,9 @@ public class Interpreter implements Serializable {
 				p.push(RandomAtom(state, threadnum));
 			} else {
 				p.push(RandomCode(state, threadnum, count));
+//				for (int j = 0; j < count; j++) {
+//					p.push(RandomAtom(state, threadnum));
+//				}
 			}
 		}
 

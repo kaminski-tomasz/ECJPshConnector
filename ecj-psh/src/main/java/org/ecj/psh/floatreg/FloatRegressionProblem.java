@@ -19,10 +19,10 @@ public class FloatRegressionProblem extends PshProblem {
 	
 	// some test cases
 	float testCases[][] = { 
-			{ -5, 18 }, { -4, 9 }, { -3, 2 }, 
-			{ -2, -3 }, { -1, -6 }, { 0, -7 }, 
-			{ 1, -6 }, { 2, -3 }, { 3, 2 }, 
-			{ 4, 9 }, { 5, 18 } 
+			{ -5.0f, 18.0f }, { -4.0f, 9.0f }, { -3.0f, 2.0f }, 
+			{ -2.0f, -3.0f }, { -1.0f, -6.0f }, { 0.0f, -7.0f }, 
+			{ 1.0f, -6.0f }, { 2.0f, -3.0f }, { 3.0f, 2.0f }, 
+			{ 4.0f, 9.0f }, { 5.0f, 18.0f } 
 	};
 	
 	@Override
@@ -56,7 +56,9 @@ public class FloatRegressionProblem extends PshProblem {
 		}
 		
 		Program program = ((PshIndividual) ind).program;
+		
 		float fitness = 0.0f;
+		int hits = 0;
 		
 		for (float[] testCase : testCases) {
 			float input = testCase[0];
@@ -68,26 +70,32 @@ public class FloatRegressionProblem extends PshProblem {
 			
 			// executing the program
 			interpreter.Execute(state, threadnum, program, executionLimit);
-			
+
 			// Penalize individual if there is no result on the stack.
-			if(interpreter.inputStack().size() == 0){
+			if (interpreter.floatStack().size() == 0) {
 				fitness += 1000.0f;
 				continue;
 			}
-			
+
 			// update result with absolute difference
-			float result = interpreter.floatStack().top();
-			fitness += Math.abs(result - output);
+			float result = Math.abs(interpreter.floatStack().top() - output);
+			if (result < 0.01)
+				hits++;
+			fitness += result;
+
 		}
 		if (Float.isInfinite(fitness)) {
 			fitness = Float.MAX_VALUE;
 		} else {
 			// compute mean absolute error
-			fitness /= testCases.length;
+			fitness = fitness / (float) testCases.length;
 		}
 
-		((KozaFitness)ind.fitness).setStandardizedFitness(state, fitness);
+		KozaFitness f = (KozaFitness) ind.fitness; 
+		f.setStandardizedFitness(state, fitness);
+		f.hits = hits;
 		ind.evaluated = true;
+		
 	}
 
 }

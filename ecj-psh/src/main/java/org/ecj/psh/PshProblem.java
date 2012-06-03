@@ -1,5 +1,6 @@
 package org.ecj.psh;
 
+import org.ecj.psh.util.Simplifier;
 import org.spiderland.Psh.Interpreter;
 import org.spiderland.Psh.Program;
 
@@ -148,4 +149,15 @@ public abstract class PshProblem extends Problem implements SimpleProblemForm {
 		return newProblem;
 	}
 
+	@Override
+	public void describe(final EvolutionState state, final Individual ind,
+			final int subpopulation, final int threadnum, final int log) {
+		
+		PshProblem problem = (PshProblem)state.evaluator.p_problem.clone();
+		
+		state.output.println("After simplifications: ", log);
+		//Simplifier.autoSimplify(state, ind, problem, 1000, subpopulation, threadnum, 0.2);
+		Simplifier.autoSimplify(state, (PshIndividual)ind, problem, 1000, subpopulation, threadnum, 0.2f);
+		state.output.println("\t"+ind, log);
+	}
 }
