@@ -119,8 +119,10 @@ public class MutationPipeline extends PshBreedingPipeline {
 			else
 				newtree = problem.interpreter.RandomCode(state, thread, newsize);
 
-			if (newsize + totalsize - oldsize <= problem.maxPointsInProgram)
+			if (newsize + totalsize - oldsize <= problem.maxPointsInProgram) {
 				ind.program.ReplaceSubtree(which, newtree);
+				ind.evaluated = false;
+			}
 		}
 
 		return n;

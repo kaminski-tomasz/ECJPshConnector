@@ -42,9 +42,9 @@ public class PshSpecies extends Species {
 		// Generate random program
 		int randomCodeSize = state.random[thread]
 				.nextInt(problem.maxRandomCodeSize) + 2;
-		Program p = problem.interpreter.RandomCode(state, thread,
+		
+		newind.program = problem.interpreter.RandomCode(state, thread,
 				randomCodeSize);
-		newind.program = new Program(p);
 
 		// Set the fitness
 		newind.fitness = (Fitness) (f_prototype.clone());
