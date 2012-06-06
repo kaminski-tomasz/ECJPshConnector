@@ -5,7 +5,7 @@ import ec.util.Parameter;
 
 /**
  * A static class that returns the base for "default values" which PushGP
- * operators use, rather than making the user specify them all on a per- species
+ * classes use, rather than making the user specify them all on a per- species
  * basis.
  * 
  * @author Tomasz Kamiński

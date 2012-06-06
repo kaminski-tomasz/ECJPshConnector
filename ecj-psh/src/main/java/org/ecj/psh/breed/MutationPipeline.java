@@ -1,8 +1,11 @@
 package org.ecj.psh.breed;
 
+import org.ecj.psh.PshEvaluator;
 import org.ecj.psh.PshIndividual;
 import org.ecj.psh.PshNodeSelector;
 import org.ecj.psh.PshProblem;
+import org.spiderland.Psh.Interpreter;
+
 import ec.BreedingPipeline;
 import ec.EvolutionState;
 import ec.Individual;
@@ -88,8 +91,8 @@ public class MutationPipeline extends PshBreedingPipeline {
 			}
 		}
 
-		// we hold Interpreter in Problem object
-		PshProblem problem = ((PshProblem) (state.evaluator.p_problem));
+		// we hold Interpreter in Evaluator object
+		Interpreter interpreter = ((PshEvaluator) state.evaluator).interpreter[thread];
 
 		// mutate 'em
 		for (int i = start; i < n + start; i++) {
@@ -109,17 +112,17 @@ public class MutationPipeline extends PshBreedingPipeline {
 						oldsize + state.random[thread].nextInt(2 * range)
 								- range);
 			} else {
-				newsize = state.random[thread].nextInt(problem.maxRandomCodeSize);
+				newsize = state.random[thread].nextInt(interpreter.getMaxRandomCodeSize());
 			}
 
 			Object newtree;
 
 			if (newsize == 1)
-				newtree = problem.interpreter.RandomAtom(state, thread);
+				newtree = interpreter.RandomAtom();
 			else
-				newtree = problem.interpreter.RandomCode(state, thread, newsize);
+				newtree = interpreter.RandomCode(newsize);
 
-			if (newsize + totalsize - oldsize <= problem.maxPointsInProgram) {
+			if (newsize + totalsize - oldsize <= interpreter.getMaxPointsInProgram()) {
 				ind.program.ReplaceSubtree(which, newtree);
 				ind.evaluated = false;
 			}

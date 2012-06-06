@@ -18,8 +18,6 @@ package org.spiderland.Psh;
 
 import java.io.Serializable;
 
-import ec.EvolutionState;
-
 /**
  * Abstract instruction base for all instructions.
  */
@@ -27,5 +25,5 @@ import ec.EvolutionState;
 public abstract class Instruction implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	public abstract void Execute(EvolutionState state, int threadnum, Interpreter inI);
+	public abstract void Execute(Interpreter inI);
 }

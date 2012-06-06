@@ -1,6 +1,6 @@
 package org.ecj.psh;
 
-import org.spiderland.Psh.Program;
+import org.spiderland.Psh.Interpreter;
 
 import ec.EvolutionState;
 import ec.Fitness;
@@ -36,15 +36,14 @@ public class PshSpecies extends Species {
 	public Individual newIndividual(EvolutionState state, int thread) {
 		PshIndividual newind = ((PshIndividual) (i_prototype)).clone();
 
-		// problem
-		PshProblem problem = (PshProblem)state.evaluator.p_problem;
-		
+		// interpreter
+		Interpreter interpreter = ((PshEvaluator) state.evaluator).interpreter[thread];
+
 		// Generate random program
 		int randomCodeSize = state.random[thread]
-				.nextInt(problem.maxRandomCodeSize) + 2;
+				.nextInt(interpreter.getMaxRandomCodeSize()) + 2;
 		
-		newind.program = problem.interpreter.RandomCode(state, thread,
-				randomCodeSize);
+		newind.program = interpreter.RandomCode(randomCodeSize);
 
 		// Set the fitness
 		newind.fitness = (Fitness) (f_prototype.clone());

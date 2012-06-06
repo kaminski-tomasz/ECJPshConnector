@@ -1,76 +1,77 @@
 
 ####### threads & checkpointing
 
-evalthreads									= 1
-breedthreads 								= 1
-seed.0 										= 1234
+evalthreads			= 1
+breedthreads 		= 1
+seed.0 				= 1234
 
-checkpoint 									= false
-checkpoint-modulo							= 1
-prefix										= psh
+checkpoint 			= false
+checkpoint-modulo	= 1
+prefix				= psh
 
 
 ####### "simple" settings
 
-breed										= ec.simple.SimpleBreeder
-state										= ec.simple.SimpleEvolutionState
-init										= ec.simple.SimpleInitializer
-finish										= ec.simple.SimpleFinisher
-eval										= ec.simple.SimpleEvaluator
-exch										= ec.simple.SimpleExchanger
+breed					= ec.simple.SimpleBreeder
+state					= ec.simple.SimpleEvolutionState
+init					= ec.simple.SimpleInitializer
+finish					= ec.simple.SimpleFinisher
+exch					= ec.simple.SimpleExchanger
 
-generations									= 1000
-quit-on-run-complete						= true
+generations				= 1000
+quit-on-run-complete	= true
 
 
 ####### Population settings
 
-pop											= ec.Population
-pop.subpops									= 1
-pop.subpop.0								= ec.Subpopulation
-pop.subpop.0.size							= 200
-pop.subpop.0.duplicate-retries				= 0
+pop								= ec.Population
+pop.subpops						= 1
+pop.subpop.0					= ec.Subpopulation
+pop.subpop.0.size				= 200
+pop.subpop.0.duplicate-retries	= 0
 
 
 ###### Statistics
 
-stat										= ec.simple.SimpleStatistics
-stat.file									= $out.stat
+stat		= ec.simple.SimpleStatistics
+stat.file	= $out.stat
 
 
 ####### PushGP specific settings
 
-pop.subpop.0.species						= org.ecj.psh.PshSpecies
-pop.subpop.0.species.ind					= org.ecj.psh.PshIndividual
+eval						= org.ecj.psh.PshEvaluator
+eval.interpreter			= org.spiderland.Psh.Interpreter
+pop.subpop.0.species		= org.ecj.psh.PshSpecies
+pop.subpop.0.species.ind	= org.ecj.psh.PshIndividual
 
 # in GP we usually use Koza fitness
-pop.subpop.0.species.fitness				= ec.gp.koza.KozaFitness
+pop.subpop.0.species.fitness	= ec.gp.koza.KozaFitness
 
 
 ####### Specifying default breeding pipelines parameters
  
 # Tournament selection settings
-select.tournament.size						= 7
+select.tournament.size					= 7
 
 # Reproduction pipeline settings
-breed.reproduce.source.0 					= ec.select.TournamentSelection
+breed.reproduce.source.0 				= ec.select.TournamentSelection
  
 # Mutation pipeline settings
-psh.breed.mutate.source.0					= ec.select.TournamentSelection
-psh.breed.mutate.ns.0						= org.ecj.psh.UnbiasedNodeSelector
-psh.breed.mutate.use-fair					= true
-psh.breed.mutate.fair-mutation-range		= 0.30
+psh.breed.mutate.source.0				= ec.select.TournamentSelection
+psh.breed.mutate.ns.0					= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.mutate.use-fair				= true
+psh.breed.mutate.fair-mutation-range	= 0.30
 
 # Crossover pipeline settings
-psh.breed.xover.source.0					= ec.select.TournamentSelection
-psh.breed.xover.source.1					= same 
-psh.breed.xover.ns.0						= org.ecj.psh.UnbiasedNodeSelector
-psh.breed.xover.ns.1						= same
+psh.breed.xover.source.0				= ec.select.TournamentSelection
+psh.breed.xover.source.1				= same 
+psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.xover.ns.1					= same
 
 # Simplification pipeline settings
-psh.breed.simplify.source.0					= ec.select.TournamentSelection
-psh.breed.simplify.steps					= 20
-psh.breed.simplify.flatten-prob				= 0.20
+psh.breed.simplify.source.0				= ec.select.TournamentSelection
+psh.breed.simplify.steps				= 20
+psh.breed.simplify.flatten-prob			= 0.20
 
 ####### Specifying PushGP breeding pipelines 
 
@@ -97,17 +98,18 @@ psh.breed.simplify.flatten-prob				= 0.20
 
 ############ Default Interpreter settings
 
-psh.problem.interpreter.max-random-code-size		= 30
-psh.problem.interpreter.execution-limit				= 100
-psh.problem.interpreter.max-points-in-program		= 100
+psh.interpreter.max-random-code-size	= 30
+psh.interpreter.execution-limit			= 100
+psh.interpreter.max-points-in-program	= 100
 
-psh.problem.interpreter.push-frame-mode				= false
+psh.interpreter.push-frame-mode			= false
 
-psh.problem.interpreter.max-random-integer			= 10
-psh.problem.interpreter.min-random-integer			= -10
-psh.problem.interpreter.random-integer-res			= 1
+psh.interpreter.max-random-integer		= 10
+psh.interpreter.min-random-integer		= -10
+psh.interpreter.random-integer-res		= 1
 
-psh.problem.interpreter.max-random-float			= 10.0
-psh.problem.interpreter.min-random-float			= -10.0
-psh.problem.interpreter.random-float-res			= 0.01
+psh.interpreter.max-random-float		= 10.0
+psh.interpreter.min-random-float		= -10.0
+psh.interpreter.random-float-res		= 0.01
 
+#psh.interpreter.instruction-list		= instruction-list.dat

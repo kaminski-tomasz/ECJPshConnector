@@ -16,6 +16,11 @@
 
 package org.spiderland.Psh;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,19 +28,44 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.ecj.psh.PshDefaults;
+
 import ec.EvolutionState;
+import ec.Prototype;
+import ec.util.MersenneTwisterFast;
+import ec.util.Parameter;
 
 /**
  * The Push language interpreter.
  */
 
-public class Interpreter implements Serializable {
+public class Interpreter implements Prototype {
 	private static final long serialVersionUID = 1L;
 
+	public static final String P_INTERPRETER = "interpreter";
+
+	public static final String P_INSTRUCTIONLIST = "instruction-list";
+	
+	public static final String P_MAXRANDCODESIZE = "max-random-code-size";
+	public static final String P_EXECUTIONLIMIT = "execution-limit";
+	public static final String P_MAXPOINTSINPROG = "max-points-in-program";
+	
+	public static final String P_USEFRAMES = "push-frame-mode";
+	
+	public static final String P_MAXRANDINT = "max-random-integer";
+	public static final String P_MINRANDINT = "min-random-integer";
+	public static final String P_RANDINTRES = "random-integer-res";
+	
+	public static final String P_MAXRANDFLOAT = "max-random-float";
+	public static final String P_MINRANDFLOAT = "min-random-float";
+	public static final String P_RANDFLOATRES = "random-float-res";
+	
+	// Random code generator
+	protected MersenneTwisterFast _RNG;
+	
 	protected HashMap<String, Instruction> _instructions = new HashMap<String, Instruction>();
 
 	// All generators
-
 	protected HashMap<String, AtomGenerator> _generators = new HashMap<String, AtomGenerator>();
 	protected ArrayList<AtomGenerator> _randomGenerators = new ArrayList<AtomGenerator>();
 
@@ -62,10 +92,14 @@ public class Interpreter implements Serializable {
 	protected ObjectStack _codeFrameStack = new ObjectStack();
 	protected ObjectStack _nameFrameStack = new ObjectStack();
 
-	protected boolean _useFrames;
-
 	protected int _totalStepsTaken;
 	protected long _evaluationExecutions = 0;
+	
+	private int _maxRandomCodeSize;
+	private int _executionLimit;
+	private int _maxPointsInProgram;
+	
+	protected boolean _useFrames;
 	
 	protected int _maxRandomInt;
 	protected int _minRandomInt;
@@ -74,13 +108,119 @@ public class Interpreter implements Serializable {
 	protected float _maxRandomFloat;
 	protected float _minRandomFloat;
 	protected float _randomFloatResolution;
-	
-	protected int _maxRandomCodeSize;
-	protected int _maxPointsInProgram;
 
 	protected InputPusher _inputPusher = new InputPusher();
-
+	
+	public void setRNG(MersenneTwisterFast _RNG) {
+		this._RNG = _RNG;
+	}
+	
 	public Interpreter() {
+	}
+	
+	@Override
+	public Parameter defaultBase() {
+		return PshDefaults.base().push(P_INTERPRETER);
+	}
+	
+	@Override
+	public Object clone() {
+		try {
+			return super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new InternalError();
+		} // never happens
+	}
+	
+	@Override
+	public void setup(EvolutionState state, Parameter base) {
+		
+		Parameter def = defaultBase();
+
+		// max. random code size, default 30
+		setMaxRandomCodeSize(state.parameters.getIntWithDefault(
+				base.push(P_MAXRANDCODESIZE),
+				def.push(P_MAXRANDCODESIZE), 30));
+		// execution limit for Push programs
+		setExecutionLimit(state.parameters.getIntWithDefault(
+				base.push(P_EXECUTIONLIMIT),
+				def.push(P_EXECUTIONLIMIT), 100));
+		// max number of points in program
+		setMaxPointsInProgram(state.parameters.getIntWithDefault(
+				base.push(P_MAXPOINTSINPROG),
+				def.push(P_MAXPOINTSINPROG), 100));
+		
+		// maximum random integer
+		_maxRandomInt = state.parameters.getIntWithDefault(
+				base.push(P_MAXRANDINT),
+				def.push(P_MAXRANDINT), 10);
+		// minimum random integer
+		_minRandomInt = state.parameters.getIntWithDefault(
+				base.push(P_MINRANDINT),
+				def.push(P_MINRANDINT), -10);
+		// random integer resolution
+		_randomIntResolution = state.parameters.getIntWithDefault(
+				base.push(P_RANDINTRES),
+				def.push(P_RANDINTRES), 1);
+		
+		// maximum random float
+		_maxRandomFloat = state.parameters.getFloatWithDefault(
+				base.push(P_MAXRANDFLOAT),
+				def.push(P_MAXRANDFLOAT), 10.0);
+		// minimum random float
+		_minRandomFloat = state.parameters.getFloatWithDefault(
+				base.push(P_MINRANDFLOAT),
+				def.push(P_MINRANDFLOAT), -10.0);
+		// random integer float
+		_randomFloatResolution = state.parameters.getFloatWithDefault(
+				base.push(P_RANDFLOATRES),
+				def.push(P_RANDFLOATRES), 0.01);
+		
+		// should we use push frame mode
+		_useFrames = state.parameters.getBoolean(
+				base.push(P_USEFRAMES),
+				def.push(P_USEFRAMES), false);
+		
+		File instructionListFile = state.parameters.getFile(
+				base.push(P_INSTRUCTIONLIST), def.push(P_INSTRUCTIONLIST));
+		StringBuilder sb = new StringBuilder();
+		
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					new FileInputStream(instructionListFile.getAbsolutePath())));
+			try {
+				String line;
+				while ((line = br.readLine()) != null) {
+					if (sb.length() > 0)
+						sb.append(" ").append(line);
+					else
+						sb.append("(").append(line);
+				}
+				sb.append(")");
+			} finally {
+				br.close();
+			}
+		} catch (IOException e) {
+			state.output.fatal("Can't read instruction list from file "
+					+ instructionListFile);
+		}
+		try {
+			Program instructionList = new Program(sb.toString());
+			state.output.message("Instruction list for PushGP: " + instructionList);
+			SetInstructions(instructionList);
+		} catch (Exception e) {
+			state.output.fatal("Can't set instruction list"); 
+		}
+	}
+
+	public void Initialize(MersenneTwisterFast _RNG) {
+
+		if (_RNG == null) {
+			throw new InternalError();
+		}
+		
+		this._RNG = _RNG;
+		
 		_useFrames = false;
 		PushStacks();
 
@@ -101,7 +241,7 @@ public class Interpreter implements Serializable {
 		DefineInstruction("integer.ln", new IntegerLn());
 		DefineInstruction("integer.fromfloat", new IntegerFromFloat());
 		DefineInstruction("integer.fromboolean", new IntegerFromBoolean());
-		DefineInstruction("integer.rand", new IntegerRand());
+		DefineInstruction("integer.rand", new IntegerRand(this._RNG));
 
 		DefineInstruction("float.+", new FloatAdd());
 		DefineInstruction("float.-", new FloatSub());
@@ -124,7 +264,7 @@ public class Interpreter implements Serializable {
 		DefineInstruction("float.ln", new FloatLn());
 		DefineInstruction("float.frominteger", new FloatFromInteger());
 		DefineInstruction("float.fromboolean", new FloatFromBoolean());
-		DefineInstruction("float.rand", new FloatRand());
+		DefineInstruction("float.rand", new FloatRand(this._RNG));
 		
 		DefineInstruction("boolean.=", new BoolEquals());
 		DefineInstruction("boolean.not", new BoolNot());
@@ -133,7 +273,7 @@ public class Interpreter implements Serializable {
 		DefineInstruction("boolean.xor", new BoolXor());
 		DefineInstruction("boolean.frominteger", new BooleanFromInteger());
 		DefineInstruction("boolean.fromfloat", new BooleanFromFloat());
-		DefineInstruction("boolean.rand", new BoolRand());
+		DefineInstruction("boolean.rand", new BoolRand(this._RNG));
 
 		DefineInstruction("code.quote", new Quote());
 		DefineInstruction("code.fromboolean", new CodeFromBoolean());
@@ -142,7 +282,7 @@ public class Interpreter implements Serializable {
 		DefineInstruction("code.noop", new ExecNoop());
 		
 		DefineInstruction("exec.k", new ExecK(_execStack));
-		DefineInstruction("exec.s", new ExecS(_execStack, _maxPointsInProgram));
+		DefineInstruction("exec.s", new ExecS(_execStack, getMaxPointsInProgram()));
 		DefineInstruction("exec.y", new ExecY(_execStack));
 		DefineInstruction("exec.noop", new ExecNoop());
 
@@ -156,8 +296,8 @@ public class Interpreter implements Serializable {
 		DefineInstruction("exec.=", new ObjectEquals(_execStack));
 		DefineInstruction("code.if", new If(_codeStack));
 		DefineInstruction("exec.if", new If(_execStack));
-		DefineInstruction("code.rand", new RandomPushCode(_codeStack));
-		DefineInstruction("exec.rand", new RandomPushCode(_execStack));
+		DefineInstruction("code.rand", new RandomPushCode(_codeStack, this._RNG));
+		DefineInstruction("exec.rand", new RandomPushCode(_execStack, this._RNG));
 		
 		DefineInstruction("true", new BooleanConstant(true));
 		DefineInstruction("false", new BooleanConstant(false));
@@ -338,8 +478,8 @@ public class Interpreter implements Serializable {
 		_maxRandomFloat = maxRandomFloat;
 		_randomFloatResolution = randomFloatResolution;
 		
-		_maxRandomCodeSize = maxRandomCodeSize;
-		_maxPointsInProgram = maxPointsInProgram;
+		setMaxRandomCodeSize(maxRandomCodeSize);
+		setMaxPointsInProgram(maxPointsInProgram);
 	}
 
 	/**
@@ -431,7 +571,7 @@ public class Interpreter implements Serializable {
 		}
 
 		if (inObject instanceof Instruction) {
-			((Instruction) inObject).Execute(state, threadnum, this);
+			((Instruction) inObject).Execute(this);
 			return 0;
 		}
 
@@ -439,7 +579,7 @@ public class Interpreter implements Serializable {
 			Instruction i = _instructions.get(inObject);
 
 			if (i != null) {
-				i.Execute(state, threadnum, this);
+				i.Execute(this);
 			} else {
 				_nameStack.push(inObject);
 			}
@@ -717,10 +857,10 @@ public class Interpreter implements Serializable {
 	 *         instruction set.
 	 */
 
-	public Object RandomAtom(EvolutionState state, int threadnum) {
-		int index = state.random[threadnum].nextInt(_randomGenerators.size());
+	public Object RandomAtom() {
+		int index = this._RNG.nextInt(_randomGenerators.size());
 
-		return _randomGenerators.get(index).Generate(state, threadnum, this);
+		return _randomGenerators.get(index).Generate(this);
 	}
 
 	/**
@@ -731,19 +871,19 @@ public class Interpreter implements Serializable {
 	 * @return A random Push program of the given size.
 	 */
 
-	public Program RandomCode(EvolutionState state, int threadnum, int inSize) {
+	public Program RandomCode(int inSize) {
 		Program p = new Program();
 
-		List<Integer> distribution = RandomCodeDistribution(state, threadnum, inSize - 1,
+		List<Integer> distribution = RandomCodeDistribution(inSize - 1,
 				inSize - 1);
 
 		for (int i = 0; i < distribution.size(); i++) {
 			int count = distribution.get(i);
 
 			if (count == 1) {
-				p.push(RandomAtom(state, threadnum));
+				p.push(RandomAtom());
 			} else {
-				p.push(RandomCode(state, threadnum, count));
+				p.push(RandomCode(count));
 //				for (int j = 0; j < count; j++) {
 //					p.push(RandomAtom(state, threadnum));
 //				}
@@ -766,13 +906,13 @@ public class Interpreter implements Serializable {
 	 * @return A list of integers representing the size distribution.
 	 */
 
-	public List<Integer> RandomCodeDistribution(EvolutionState state, int threadnum, int inCount, int inMaxElements) {
+	public List<Integer> RandomCodeDistribution(int inCount, int inMaxElements) {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 
-		RandomCodeDistribution(state, threadnum, result, inCount, inMaxElements);
+		RandomCodeDistribution(result, inCount, inMaxElements);
 	
 		for (int i = 0; i < result.size(); i++) {
-			int j = state.random[threadnum].nextInt(result.size());
+			int j = this._RNG.nextInt(result.size());
 			int iElem = result.get(i);
 			result.set(i, result.get(j));
 			result.set(j, iElem);
@@ -792,23 +932,46 @@ public class Interpreter implements Serializable {
 	 *            The maxmimum number of elements at this level.
 	 */
 
-	private void RandomCodeDistribution(EvolutionState state, int threadnum, 
-			List<Integer> ioList, int inCount,
+	private void RandomCodeDistribution(List<Integer> ioList, int inCount,
 			int inMaxElements) {
 		if (inCount < 1)
 			return;
 
-		int thisSize = inCount < 2 ? 1 : (state.random[threadnum].nextInt(inCount) + 1);
+		int thisSize = inCount < 2 ? 1 : (this._RNG.nextInt(inCount) + 1);
 
 		ioList.add(thisSize);
 
-		RandomCodeDistribution(state, threadnum, ioList, inCount - thisSize, inMaxElements - 1);
+		RandomCodeDistribution(ioList, inCount - thisSize, inMaxElements - 1);
+	}
+
+	public int getMaxRandomCodeSize() {
+		return _maxRandomCodeSize;
+	}
+
+	public void setMaxRandomCodeSize(int _maxRandomCodeSize) {
+		this._maxRandomCodeSize = _maxRandomCodeSize;
+	}
+
+	public int getMaxPointsInProgram() {
+		return _maxPointsInProgram;
+	}
+
+	public void setMaxPointsInProgram(int _maxPointsInProgram) {
+		this._maxPointsInProgram = _maxPointsInProgram;
+	}
+
+	public int getExecutionLimit() {
+		return _executionLimit;
+	}
+
+	public void setExecutionLimit(int _executionLimit) {
+		this._executionLimit = _executionLimit;
 	}
 
 	abstract class AtomGenerator implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		abstract Object Generate(EvolutionState state, int threadnum, Interpreter inInterpreter);
+		abstract Object Generate(Interpreter inInterpreter);
 	}
 
 	private class InstructionAtomGenerator extends AtomGenerator {
@@ -820,7 +983,7 @@ public class Interpreter implements Serializable {
 			_instruction = inInstructionName;
 		}
 
-		Object Generate(EvolutionState state, int threadnum, Interpreter inInterpreter) {
+		Object Generate(Interpreter inInterpreter) {
 			return _instruction;
 		}
 	}
@@ -828,8 +991,8 @@ public class Interpreter implements Serializable {
 	private class FloatAtomGenerator extends AtomGenerator {
 		private static final long serialVersionUID = 1L;
 
-		Object Generate(EvolutionState state, int threadnum, Interpreter inInterpreter) {
-			float r = state.random[threadnum].nextFloat() * (_maxRandomFloat - _minRandomFloat);
+		Object Generate(Interpreter inInterpreter) {
+			float r = inInterpreter._RNG.nextFloat() * (_maxRandomFloat - _minRandomFloat);
 
 			r -= (r % _randomFloatResolution);
 
@@ -840,8 +1003,8 @@ public class Interpreter implements Serializable {
 	private class IntAtomGenerator extends AtomGenerator {
 		private static final long serialVersionUID = 1L;
 
-		Object Generate(EvolutionState state, int threadnum, Interpreter inInterpreter) {
-			int r = state.random[threadnum].nextInt(_maxRandomInt - _minRandomInt);
+		Object Generate(Interpreter inInterpreter) {
+			int r = inInterpreter._RNG.nextInt(_maxRandomInt - _minRandomInt);
 
 			r -= (r % _randomIntResolution);
 

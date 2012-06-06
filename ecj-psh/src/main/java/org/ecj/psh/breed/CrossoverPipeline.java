@@ -1,5 +1,6 @@
 package org.ecj.psh.breed;
 
+import org.ecj.psh.PshEvaluator;
 import org.ecj.psh.PshIndividual;
 import org.ecj.psh.PshNodeSelector;
 import org.ecj.psh.PshProblem;
@@ -115,7 +116,8 @@ public class CrossoverPipeline extends PshBreedingPipeline {
 		if (!state.random[thread].nextBoolean(likelihood))
 			return reproduce(n, start, subpopulation, inds, state, thread, true);
 
-		int maxPointsInProgram = ((PshProblem) state.evaluator.p_problem).maxPointsInProgram;
+		int maxPointsInProgram = ((PshEvaluator) state.evaluator).interpreter[thread]
+				.getMaxPointsInProgram();
 
 		// keep on going until we're filled up
 		for (int q = start; q < n + start; /* no increment */) {

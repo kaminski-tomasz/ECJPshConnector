@@ -1,7 +1,9 @@
 package org.ecj.psh.floatreg;
 
+import org.ecj.psh.PshEvaluator;
 import org.ecj.psh.PshIndividual;
 import org.ecj.psh.PshProblem;
+import org.spiderland.Psh.Interpreter;
 import org.spiderland.Psh.Program;
 
 import ec.EvolutionState;
@@ -25,14 +27,13 @@ public class FloatRegressionProblem extends PshProblem {
 			{ 4.0f, 9.0f }, { 5.0f, 18.0f } 
 	};
 	
-	@Override
 	public void setupInstructionList() {
 		// Allowed instruction list
-		// TODO these should be loaded from file!
+		// FIXME it doesn't work anymore
 		try {
-			this.instructionList = new Program("(float.* float.+ float.- "
-					+ "float./ float.dup float.flush float.stackdepth "
-					+ "float.swap float.erc input.makeinputs1)");
+//			this.instructionList = new Program("(float.* float.+ float.- "
+//					+ "float./ float.dup float.flush float.stackdepth "
+//					+ "float.swap float.erc input.makeinputs1)");
 		} catch (Exception e) {
 			throw new InternalError();
 		}
@@ -55,6 +56,7 @@ public class FloatRegressionProblem extends PshProblem {
 			state.output.fatal("This is not PshIndividual instance!");
 		}
 		
+		Interpreter interpreter = ((PshEvaluator) state.evaluator).interpreter[threadnum];
 		Program program = ((PshIndividual) ind).program;
 		
 		float fitness = 0.0f;
@@ -67,9 +69,10 @@ public class FloatRegressionProblem extends PshProblem {
 			
 			// setting input value to input stack
 			interpreter.inputStack().push((Float)input);
-			
+
 			// executing the program
-			interpreter.Execute(state, threadnum, program, executionLimit);
+			interpreter.Execute(state, threadnum, program,
+					interpreter.getExecutionLimit());
 
 			// Penalize individual if there is no result on the stack.
 			if (interpreter.floatStack().size() == 0) {
