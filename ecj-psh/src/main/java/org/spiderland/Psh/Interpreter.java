@@ -488,8 +488,8 @@ public class Interpreter implements Prototype {
 	 * @return The number of instructions executed.
 	 */
 
-	public int Execute(EvolutionState state, int threadnum, Program inProgram) {
-		return Execute(state, threadnum, inProgram, -1);
+	public int Execute(Program inProgram) {
+		return Execute(inProgram, -1);
 	}
 
 	/**
@@ -500,10 +500,10 @@ public class Interpreter implements Prototype {
 	 * @return The number of instructions executed.
 	 */
 
-	public int Execute(EvolutionState state, int threadnum, Program inProgram, int inMaxSteps) {
+	public int Execute(Program inProgram, int inMaxSteps) {
 		_evaluationExecutions++;
 		LoadProgram(inProgram); // Initializes program
-		return Step(state, threadnum, inMaxSteps);
+		return Step(inMaxSteps);
 	}
 
 	/**
@@ -529,10 +529,10 @@ public class Interpreter implements Prototype {
 	 * @return The number of instructions executed.
 	 */
 
-	public int Step(EvolutionState state, int threadnum, int inMaxSteps) {
+	public int Step(int inMaxSteps) {
 		int executed = 0;
 		while (inMaxSteps != 0 && _execStack.size() > 0) {			
-			ExecuteInstruction(state, threadnum, _execStack.pop());
+			ExecuteInstruction(_execStack.pop());
 			inMaxSteps--;
 			executed++;
 		}
@@ -542,7 +542,7 @@ public class Interpreter implements Prototype {
 		return executed;
 	}
 
-	public int ExecuteInstruction(EvolutionState state, int threadnum, Object inObject) {
+	public int ExecuteInstruction(Object inObject) {
 
 		if (inObject instanceof Program) {
 			Program p = (Program) inObject;

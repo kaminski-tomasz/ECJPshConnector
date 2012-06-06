@@ -1,0 +1,8 @@
+float.* 
+float.+ 
+float.% 
+float.- 
+float.dup 
+float.swap 
+float.erc 
+input.makeinputs1

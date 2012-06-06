@@ -4,6 +4,7 @@ import org.spiderland.Psh.Interpreter;
 
 import ec.EvolutionState;
 import ec.Initializer;
+import ec.gp.koza.KozaFitness;
 import ec.simple.SimpleEvaluator;
 import ec.util.Parameter;
 
@@ -34,6 +35,23 @@ public class PshEvaluator extends SimpleEvaluator {
 			interpreter[i].Initialize(state.random[i]);
 			interpreter[i].setup(state, p);
 		}
+	}
+	
+	/**
+	 * The SimpleEvaluator determines that a run is complete by asking each
+	 * individual in each population if he's optimal; if he finds an individual
+	 * somewhere that's optimal, he signals that the run is complete.
+	 */
+	public boolean runComplete(final EvolutionState state) {
+		for (int x = 0; x < state.population.subpops.length; x++)
+			for (int y = 0; y < state.population.subpops[x].individuals.length; y++) {
+				KozaFitness fitness = (KozaFitness) state.population.subpops[x].individuals[y].fitness;
+				if (fitness.isIdealFitness()
+						|| fitness.standardizedFitness() < 0.1)
+					return true;
+			}
+
+		return false;
 	}
 
 }

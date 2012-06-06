@@ -1,0 +1,84 @@
+
+####### Simple float symbolic regression demo
+
+evalthreads		= 1
+breedthreads 	= 1
+#seed.0 		= 44328
+seed.0 			= 3
+seed.1 			= 2
+
+parent.0		= ../psh.params
+
+
+# Problem to solve
+eval.problem	= org.ecj.psh.problem.FloatRegressionProblem
+
+
+# General settings 
+generations			= 1000
+pop.subpop.0.size	= 200
+
+ 
+# Tournament selection settings
+select.tournament.size					= 5
+
+# Reproduction pipeline settings
+breed.reproduce.source.0 				= ec.select.TournamentSelection
+ 
+# Mutation pipeline settings
+psh.breed.mutate.source.0				= ec.select.TournamentSelection
+psh.breed.mutate.ns.0					= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.mutate.use-fair				= true
+psh.breed.mutate.fair-mutation-range	= 0.30
+
+# Crossover pipeline settings
+psh.breed.xover.source.0				= ec.select.TournamentSelection
+psh.breed.xover.source.1				= same 
+psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.xover.ns.1					= same
+
+# Simplification pipeline settings
+psh.breed.simplify.source.0				= ec.select.TournamentSelection
+psh.breed.simplify.steps				= 20
+psh.breed.simplify.flatten-prob			= 0.20
+
+
+########### Pipelines
+
+pop.subpop.0.species.pipe				= ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.num-sources 	= 4
+pop.subpop.0.species.pipe.generate-max	= false
+
+# Crossover pipeline
+pop.subpop.0.species.pipe.source.0		= org.ecj.psh.breed.CrossoverPipeline
+pop.subpop.0.species.pipe.source.0.prob	= 0.60
+
+# Mutation pipeline
+pop.subpop.0.species.pipe.source.1		= org.ecj.psh.breed.MutationPipeline
+pop.subpop.0.species.pipe.source.1.prob	= 0.30
+
+# Simplification pipeline
+pop.subpop.0.species.pipe.source.2		= org.ecj.psh.breed.SimplificationPipeline
+pop.subpop.0.species.pipe.source.2.prob	= 0.05
+
+# Reproduction pipeline
+pop.subpop.0.species.pipe.source.3		= ec.breed.ReproductionPipeline
+pop.subpop.0.species.pipe.source.3.prob	= 0.05
+
+
+############ Interpreter settings
+
+psh.interpreter.max-random-code-size	= 30
+psh.interpreter.execution-limit			= 100
+psh.interpreter.max-points-in-program	= 50
+
+psh.interpreter.max-random-float		= 10.0
+psh.interpreter.min-random-float		= -10.0
+psh.interpreter.random-float-res		= 1.00
+
+psh.interpreter.instruction-list		= instructions.txt
+psh.problem.test-cases					= semantics.txt
+
+#print-params = true
+print-unaccessed-params	= true
+#print-accessed-params	= true
