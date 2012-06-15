@@ -60,6 +60,8 @@ public class Interpreter implements Prototype {
 	public static final String P_MINRANDFLOAT = "min-random-float";
 	public static final String P_RANDFLOATRES = "random-float-res";
 	
+	public static final String P_GENERATEFLAT = "generate-flat";
+	
 	// Random code generator
 	protected MersenneTwisterFast _RNG;
 	
@@ -109,6 +111,8 @@ public class Interpreter implements Prototype {
 	protected float _minRandomFloat;
 	protected float _randomFloatResolution;
 
+	protected boolean _generateFlatPrograms;
+	
 	protected InputPusher _inputPusher = new InputPusher();
 	
 	public void setRNG(MersenneTwisterFast _RNG) {
@@ -180,6 +184,10 @@ public class Interpreter implements Prototype {
 		_useFrames = state.parameters.getBoolean(
 				base.push(P_USEFRAMES),
 				def.push(P_USEFRAMES), false);
+		
+		// should we generate flat programs (without parentheses)
+		_generateFlatPrograms = state.parameters.getBoolean(
+				base.push(P_GENERATEFLAT), def.push(P_GENERATEFLAT), false);
 		
 		File instructionListFile = state.parameters.getFile(
 				base.push(P_INSTRUCTIONLIST), def.push(P_INSTRUCTIONLIST));
@@ -883,10 +891,13 @@ public class Interpreter implements Prototype {
 			if (count == 1) {
 				p.push(RandomAtom());
 			} else {
-				p.push(RandomCode(count));
-//				for (int j = 0; j < count; j++) {
-//					p.push(RandomAtom(state, threadnum));
-//				}
+				if (_generateFlatPrograms) {
+					for (int j = 0; j < count; j++) {
+						p.push(RandomAtom());
+					}	
+				} else {
+					p.push(RandomCode(count));	
+				}
 			}
 		}
 
