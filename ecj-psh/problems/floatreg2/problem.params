@@ -29,7 +29,7 @@ breed.reproduce.source.0 				= ec.select.TournamentSelection
 psh.breed.mutate.source.0				= ec.select.RandomSelection
 psh.breed.mutate.ns.0					= org.ecj.psh.UnbiasedNodeSelector
 psh.breed.mutate.use-fair				= true
-psh.breed.mutate.fair-mutation-range	= 0.30
+psh.breed.mutate.fair-mutation-range	= 0.50
 
 # Crossover pipeline settings
 psh.breed.xover.source.0				= ec.select.TournamentSelection
@@ -51,7 +51,7 @@ pop.subpop.0.species.pipe.generate-max	= false
 
 # Crossover pipeline
 pop.subpop.0.species.pipe.source.0		= org.ecj.psh.breed.CrossoverPipeline
-pop.subpop.0.species.pipe.source.0.prob	= 0.75
+pop.subpop.0.species.pipe.source.0.prob	= 0.80
 
 # Mutation pipeline
 pop.subpop.0.species.pipe.source.1		= org.ecj.psh.breed.MutationPipeline
@@ -63,13 +63,18 @@ pop.subpop.0.species.pipe.source.2.prob	= 0.05
 
 # Reproduction pipeline
 pop.subpop.0.species.pipe.source.3		= ec.breed.ReproductionPipeline
-pop.subpop.0.species.pipe.source.3.prob	= 0.10
+pop.subpop.0.species.pipe.source.3.prob	= 0.05
 
 
 ############ Interpreter settings
 
+psh.interpreter.max-points-in-program	= 100
+psh.interpreter.execution-limit			= 150
 psh.interpreter.max-random-code-size	= 40
-psh.interpreter.execution-limit			= 80
+
+psh.interpreter.max-random-float		= 2.0
+psh.interpreter.min-random-float		= -2.0
+psh.interpreter.random-float-res		= 0.01
 
 psh.interpreter.instruction-list		= instructions.txt
 psh.problem.test-cases					= testcases.txt

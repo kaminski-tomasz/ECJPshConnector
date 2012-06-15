@@ -1,19 +1,16 @@
 package org.ecj.psh.problem;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Scanner;
 
-import org.ecj.psh.PshDefaults;
 import org.ecj.psh.PshEvaluator;
 import org.ecj.psh.PshIndividual;
 import org.ecj.psh.PshProblem;
 import org.spiderland.Psh.Interpreter;
-import org.spiderland.Psh.ObjectPair;
 import org.spiderland.Psh.Program;
 
 import ec.EvolutionState;
@@ -49,6 +46,7 @@ public class FloatRegressionProblem extends PshProblem {
 		try {
 			reader = new FileReader(testCasesFile);
 			Scanner scanner = new Scanner(reader);
+			scanner.useLocale(Locale.US);
 			while (scanner.hasNextFloat()) {
 				float input = scanner.nextFloat();
 				float output = scanner.nextFloat();

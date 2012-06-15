@@ -4,8 +4,8 @@
 evalthreads		= 1
 breedthreads 	= 1
 #seed.0 		= 44328
-seed.0 			= 3
-seed.1 			= 2
+seed.0 			= time
+seed.1 			= time
 
 parent.0		= ../psh.params
 
@@ -20,7 +20,7 @@ pop.subpop.0.size	= 200
 
  
 # Tournament selection settings
-select.tournament.size					= 5
+select.tournament.size					= 3
 
 # Reproduction pipeline settings
 breed.reproduce.source.0 				= ec.select.TournamentSelection
@@ -77,8 +77,14 @@ psh.interpreter.min-random-float		= -10.0
 psh.interpreter.random-float-res		= 1.00
 
 psh.interpreter.instruction-list		= instructions.txt
-psh.problem.test-cases					= semantics.txt
+psh.problem.test-cases					= testcases.txt
 
 #print-params = true
 print-unaccessed-params	= true
 #print-accessed-params	= true
+
+stat		= ec.simple.SimpleStatistics
+
+#jobs		= 2
+
+
