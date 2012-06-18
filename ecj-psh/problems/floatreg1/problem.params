@@ -10,6 +10,8 @@ seed.0 			= time
 
 # Problem to solve
 eval.problem	= org.ecj.psh.problem.FloatRegressionProblem
+eval.problem.test-cases			= testcases.txt
+eval.problem.repeat-float-stack	= 1
 
 # Threshold under which individuals are taken as ideal
 psh.ideal-threshold	= 0.1
@@ -31,9 +33,7 @@ stat.child.0.file	= $out/floatreg1-short.stat
 
 psh.interpreter.max-random-code-size	= 40
 psh.interpreter.execution-limit			= 80
-
 psh.interpreter.instruction-list		= instructions.txt
-psh.problem.test-cases					= testcases.txt
 
 
 ############ Genetic operators settings
@@ -49,17 +49,18 @@ psh.breed.mutate.fair-mutation-range	= 0.30
 
 # Crossover pipeline settings
 psh.breed.xover.source.0				= ec.select.TournamentSelection
-psh.breed.xover.source.1				= same 
+psh.breed.xover.source.1				= ec.select.RandomSelection 
 psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
 psh.breed.xover.ns.1					= same
+psh.breed.xover.toss					= false
 
 # Simplification pipeline settings
-psh.breed.simplify.source.0				= ec.select.TournamentSelection
+psh.breed.simplify.source.0				= ec.select.RandomSelection
 psh.breed.simplify.steps				= 25
 psh.breed.simplify.flatten-prob			= 0.20
 
 # Reproduction pipeline settings
-breed.reproduce.source.0 				= ec.select.TournamentSelection
+breed.reproduce.source.0 				= ec.select.RandomSelection
 
 
 ########### Pipelines

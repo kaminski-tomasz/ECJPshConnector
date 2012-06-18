@@ -22,7 +22,8 @@ public class PshEvaluator extends SimpleEvaluator {
 	/** Interpreter used in evaluating individuals */
 	public Interpreter[] interpreter;
 
-	/** Threshold under which individuals are treated as ideal */
+	/** Threshold of standardized fitness (mean absolute error) 
+	 * to which individuals are treated as ideal */
 	public float idealThreshold;
 	
 	/**

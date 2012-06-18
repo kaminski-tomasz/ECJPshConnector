@@ -27,7 +27,11 @@ import ec.util.Parameter;
 public class IntRegressionProblem extends PshProblem {
 	
 	public static final String P_TESTCASES = "test-cases";
-	
+	public static final String P_REPEATINTSTACK = "repeat-int-stack"; 
+
+	/** How many times should input number be duplicated in int stack */
+	public int repeatIntStack;
+
 	// symbolic regression test cases
 	public ArrayList<Integer[]> testCases;
 		
@@ -65,11 +69,20 @@ public class IntRegressionProblem extends PshProblem {
 			state.output.message("input = " + testCase[0] + ", output = "
 					+ testCase[1]);
 		}
+		
+		repeatIntStack = state.parameters.getIntWithDefault(
+				base.push(P_REPEATINTSTACK), def.push(P_REPEATINTSTACK), 1);
+		
 	}
 	
 	private int evaluateTestCase(Interpreter interpreter, Program program, int input, int output) {
 		
 		interpreter.ClearStacks();
+
+		// pushing input value to int stack
+		for (int i = 0; i < repeatIntStack; i++) {
+			interpreter.intStack().push(input);
+		}
 		
 		// setting input value to input stack
 		interpreter.inputStack().push((Integer)input);

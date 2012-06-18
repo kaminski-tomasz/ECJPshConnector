@@ -27,10 +27,15 @@ import ec.util.Parameter;
 public class FloatRegressionProblem extends PshProblem {
 	
 	public static final String P_TESTCASES = "test-cases";
+	public static final String P_REPEATFLOATSTACK = "repeat-float-stack"; 
+
+	/** How many times should input number be duplicated in float stack */
+	public int repeatFloatStack;
 	
 	// symbolic regression test cases
 	public ArrayList<Float[]> testCases;
-		
+	
+	
 	@Override
 	public void setup(final EvolutionState state, final Parameter base) {
 		super.setup(state, base);
@@ -65,11 +70,19 @@ public class FloatRegressionProblem extends PshProblem {
 			state.output.message("input = " + testCase[0] + ", output = "
 					+ testCase[1]);
 		}
+		
+		repeatFloatStack = state.parameters.getIntWithDefault(
+				base.push(P_REPEATFLOATSTACK), def.push(P_REPEATFLOATSTACK), 1);
 	}
 	
 	private float evaluateTestCase(Interpreter interpreter, Program program, float input, float output) {
 		
 		interpreter.ClearStacks();
+		
+		// pushing input value to float stack
+		for (int i = 0; i < repeatFloatStack; i++) {
+			interpreter.floatStack().push(input);
+		}
 		
 		// setting input value to input stack
 		interpreter.inputStack().push((Float)input);

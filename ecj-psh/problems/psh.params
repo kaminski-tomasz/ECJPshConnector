@@ -33,19 +33,44 @@ pop.subpop.0.duplicate-retries	= 0
 
 ###### Statistics
 
-stat		= ec.simple.SimpleStatistics
-stat.file	= $out.stat
+stat				= ec.simple.SimpleStatistics
+stat.file			= $out.stat
+stat.num-children	= 1
+
+stat.child.0		= ec.simple.SimpleShortStatistics
+stat.child.0.file	= $out-short.stat
 
 
 ####### PushGP specific settings
 
 eval						= org.ecj.psh.PshEvaluator
-psh.interpreter				= org.spiderland.Psh.Interpreter
+eval.interpreter			= org.spiderland.Psh.Interpreter
 pop.subpop.0.species		= org.ecj.psh.PshSpecies
 pop.subpop.0.species.ind	= org.ecj.psh.PshIndividual
 
 # in GP we usually use Koza fitness
 pop.subpop.0.species.fitness	= ec.gp.koza.KozaFitness
+
+
+############ Default Interpreter settings
+
+psh.interpreter.generate-flat			= false
+
+psh.interpreter.max-random-code-size	= 30
+psh.interpreter.execution-limit			= 100
+psh.interpreter.max-points-in-program	= 100
+
+psh.interpreter.push-frame-mode			= false
+
+psh.interpreter.max-random-integer		= 10
+psh.interpreter.min-random-integer		= -10
+psh.interpreter.random-integer-res		= 1
+
+psh.interpreter.max-random-float		= 10.0
+psh.interpreter.min-random-float		= -10.0
+psh.interpreter.random-float-res		= 0.01
+
+#psh.interpreter.instruction-list		= instructions.dat
 
 
 ####### Specifying default breeding pipelines parameters
@@ -54,22 +79,29 @@ pop.subpop.0.species.fitness	= ec.gp.koza.KozaFitness
 select.tournament.size					= 7
 
 # Reproduction pipeline settings
-breed.reproduce.source.0 				= ec.select.TournamentSelection
+breed.reproduce.source.0 				= ec.select.RandomSelection
  
 # Mutation pipeline settings
-psh.breed.mutate.source.0				= ec.select.TournamentSelection
+psh.breed.mutate.source.0				= ec.select.RandomSelection
 psh.breed.mutate.ns.0					= org.ecj.psh.UnbiasedNodeSelector
 psh.breed.mutate.use-fair				= true
 psh.breed.mutate.fair-mutation-range	= 0.30
 
 # Crossover pipeline settings
 psh.breed.xover.source.0				= ec.select.TournamentSelection
-psh.breed.xover.source.1				= same 
+psh.breed.xover.source.1				= ec.select.RandomSelection 
 psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
 psh.breed.xover.ns.1					= same
+psh.breed.xover.toss					= false
+
+# Flat crossover pipeline settings
+psh.breed.flat-xover.source.0			= ec.select.TournamentSelection
+psh.breed.flat-xover.source.1			= ec.select.RandomSelection
+psh.breed.flat-xover.type				= one-point 
+psh.breed.flat-xover.toss				= false
 
 # Simplification pipeline settings
-psh.breed.simplify.source.0				= ec.select.TournamentSelection
+psh.breed.simplify.source.0				= ec.select.RandomSelection
 psh.breed.simplify.steps				= 20
 psh.breed.simplify.flatten-prob			= 0.20
 
@@ -95,23 +127,3 @@ psh.breed.simplify.flatten-prob			= 0.20
 #pop.subpop.0.species.pipe.source.3			= ec.breed.ReproductionPipeline
 #pop.subpop.0.species.pipe.source.3.prob		= 0.05
 
-
-############ Default Interpreter settings
-
-psh.interpreter.generate-flat			= false
-
-psh.interpreter.max-random-code-size	= 30
-psh.interpreter.execution-limit			= 100
-psh.interpreter.max-points-in-program	= 100
-
-psh.interpreter.push-frame-mode			= false
-
-psh.interpreter.max-random-integer		= 10
-psh.interpreter.min-random-integer		= -10
-psh.interpreter.random-integer-res		= 1
-
-psh.interpreter.max-random-float		= 10.0
-psh.interpreter.min-random-float		= -10.0
-psh.interpreter.random-float-res		= 0.01
-
-#psh.interpreter.instruction-list		= instructions.dat

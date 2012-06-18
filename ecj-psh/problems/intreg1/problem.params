@@ -10,6 +10,8 @@ seed.0 			= time
 
 # Problem to solve
 eval.problem		= org.ecj.psh.problem.IntRegressionProblem
+eval.problem.test-cases			= testcases.txt
+eval.problem.repeat-int-stack	= 1
 
 # General settings 
 generations			= 200
@@ -33,7 +35,6 @@ psh.interpreter.execution-limit			= 80
 psh.interpreter.max-random-code-size	= 40
 
 psh.interpreter.instruction-list		= instructions.txt
-psh.problem.test-cases					= testcases.txt
 
 
 ############ Genetic operators settings
@@ -49,7 +50,7 @@ psh.breed.mutate.fair-mutation-range	= 0.50
 
 # Crossover pipeline settings
 psh.breed.xover.source.0				= ec.select.TournamentSelection
-psh.breed.xover.source.1				= same 
+psh.breed.xover.source.1				= ec.select.RandomSelection 
 psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
 psh.breed.xover.ns.1					= same
 psh.breed.xover.toss					= false

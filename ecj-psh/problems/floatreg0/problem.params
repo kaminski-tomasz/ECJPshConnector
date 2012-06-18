@@ -10,6 +10,8 @@ seed.0 			= time
 
 # Problem to solve
 eval.problem	= org.ecj.psh.problem.FloatRegressionProblem
+eval.problem.test-cases			= testcases.txt
+eval.problem.repeat-float-stack	= 1
 
 # General settings 
 generations			= 1000
@@ -35,7 +37,6 @@ psh.interpreter.min-random-float		= -10.0
 psh.interpreter.random-float-res		= 1.00
 
 psh.interpreter.instruction-list		= instructions.txt
-psh.problem.test-cases					= testcases.txt
 
 
 ############ Genetic operators settings
