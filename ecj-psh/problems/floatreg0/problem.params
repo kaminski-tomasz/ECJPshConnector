@@ -1,69 +1,27 @@
 
 ####### Simple float symbolic regression demo
-
-evalthreads		= 1
-breedthreads 	= 1
-#seed.0 		= 44328
-seed.0 			= time
-seed.1 			= time
+####### This problem comes from floatreg0.pushgp problem, provided by Psh implementation
+####### The target function is :		y = x^2 - 7
 
 parent.0		= ../psh.params
-
+evalthreads		= 1
+breedthreads 	= 1
+seed.0 			= time
 
 # Problem to solve
 eval.problem	= org.ecj.psh.problem.FloatRegressionProblem
-
 
 # General settings 
 generations			= 1000
 pop.subpop.0.size	= 200
 
- 
-# Tournament selection settings
-select.tournament.size					= 3
+# Statistics settings
+stat				= ec.simple.SimpleStatistics
+stat.file			= $out/floatreg0.stat
+stat.num-children	= 1
 
-# Reproduction pipeline settings
-breed.reproduce.source.0 				= ec.select.TournamentSelection
- 
-# Mutation pipeline settings
-psh.breed.mutate.source.0				= ec.select.TournamentSelection
-psh.breed.mutate.ns.0					= org.ecj.psh.UnbiasedNodeSelector
-psh.breed.mutate.use-fair				= true
-psh.breed.mutate.fair-mutation-range	= 0.30
-
-# Crossover pipeline settings
-psh.breed.xover.source.0				= ec.select.TournamentSelection
-psh.breed.xover.source.1				= same 
-psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
-psh.breed.xover.ns.1					= same
-
-# Simplification pipeline settings
-psh.breed.simplify.source.0				= ec.select.TournamentSelection
-psh.breed.simplify.steps				= 20
-psh.breed.simplify.flatten-prob			= 0.20
-
-
-########### Pipelines
-
-pop.subpop.0.species.pipe				= ec.breed.MultiBreedingPipeline
-pop.subpop.0.species.pipe.num-sources 	= 4
-pop.subpop.0.species.pipe.generate-max	= false
-
-# Crossover pipeline
-pop.subpop.0.species.pipe.source.0		= org.ecj.psh.breed.CrossoverPipeline
-pop.subpop.0.species.pipe.source.0.prob	= 0.60
-
-# Mutation pipeline
-pop.subpop.0.species.pipe.source.1		= org.ecj.psh.breed.MutationPipeline
-pop.subpop.0.species.pipe.source.1.prob	= 0.30
-
-# Simplification pipeline
-pop.subpop.0.species.pipe.source.2		= org.ecj.psh.breed.SimplificationPipeline
-pop.subpop.0.species.pipe.source.2.prob	= 0.05
-
-# Reproduction pipeline
-pop.subpop.0.species.pipe.source.3		= ec.breed.ReproductionPipeline
-pop.subpop.0.species.pipe.source.3.prob	= 0.05
+stat.child.0		= ec.simple.SimpleShortStatistics
+stat.child.0.file	= $out/floatreg0-short.stat
 
 
 ############ Interpreter settings
@@ -79,12 +37,57 @@ psh.interpreter.random-float-res		= 1.00
 psh.interpreter.instruction-list		= instructions.txt
 psh.problem.test-cases					= testcases.txt
 
+
+############ Genetic operators settings
+
+# Selection settings
+select.tournament.size					= 7
+
+# Reproduction pipeline settings
+breed.reproduce.source.0 				= ec.select.RandomSelection
+ 
+# Mutation pipeline settings
+psh.breed.mutate.source.0				= ec.select.RandomSelection
+psh.breed.mutate.ns.0					= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.mutate.use-fair				= true
+psh.breed.mutate.fair-mutation-range	= 0.50
+
+# Crossover pipeline settings
+psh.breed.xover.source.0				= ec.select.TournamentSelection
+psh.breed.xover.source.1				= same 
+psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
+psh.breed.xover.ns.1					= same
+
+# Simplification pipeline settings
+psh.breed.simplify.source.0				= ec.select.RandomSelection
+psh.breed.simplify.steps				= 20
+psh.breed.simplify.flatten-prob			= 0.20
+
+
+########### Pipelines
+
+pop.subpop.0.species.pipe				= ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.num-sources 	= 4
+pop.subpop.0.species.pipe.generate-max	= false
+
+# Crossover pipeline
+pop.subpop.0.species.pipe.source.0		= org.ecj.psh.breed.CrossoverPipeline
+pop.subpop.0.species.pipe.source.0.prob	= 0.70
+
+# Mutation pipeline
+pop.subpop.0.species.pipe.source.1		= org.ecj.psh.breed.MutationPipeline
+pop.subpop.0.species.pipe.source.1.prob	= 0.20
+
+# Simplification pipeline
+pop.subpop.0.species.pipe.source.2		= org.ecj.psh.breed.SimplificationPipeline
+pop.subpop.0.species.pipe.source.2.prob	= 0.05
+
+# Reproduction pipeline
+pop.subpop.0.species.pipe.source.3		= ec.breed.ReproductionPipeline
+pop.subpop.0.species.pipe.source.3.prob	= 0.05
+
+
 #print-params = true
-print-unaccessed-params	= true
+#print-unaccessed-params	= true
 #print-accessed-params	= true
-
-stat		= ec.simple.SimpleStatistics
-
-#jobs		= 2
-
 

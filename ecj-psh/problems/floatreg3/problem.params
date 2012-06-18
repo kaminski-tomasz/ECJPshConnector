@@ -1,7 +1,7 @@
 
 ####### Simple float symbolic regression demo
-####### This problem comes from floatreg2.pushgp problem, provided by Psh implementation
-####### The target function is :		y = 1.72x^2 - 0.68x^3
+####### This problem comes from floatreg3.pushgp problem, provided by Psh implementation
+####### The target function is :		y = 2|x| - 2x^2 + x
 
 parent.0		= ../psh.params
 evalthreads		= 1
@@ -9,43 +9,45 @@ breedthreads 	= 1
 seed.0 			= time
 
 # Problem to solve
-eval.problem	= org.ecj.psh.problem.FloatRegressionProblem
+eval.problem		= org.ecj.psh.problem.FloatRegressionProblem
 
 # Threshold under which individuals are taken as ideal
 psh.ideal-threshold	= 0.1
 
 # General settings 
-generations			= 200
-pop.subpop.0.size	= 2000
+generations			= 500
+pop.subpop.0.size	= 200
 
 # Statistics settings
 stat				= ec.simple.SimpleStatistics
-stat.file			= $out/floatreg2.stat
+stat.file			= $out/floatreg3.stat
 stat.num-children	= 1
 
 stat.child.0		= ec.simple.SimpleShortStatistics
-stat.child.0.file	= $out/floatreg2-short.stat
+stat.child.0.file	= $out/floatreg3-short.stat
 
 
 ############ Interpreter settings
+
+psh.interpreter.generate-flat			= false
 
 psh.interpreter.max-points-in-program	= 100
 psh.interpreter.execution-limit			= 150
 psh.interpreter.max-random-code-size	= 40
 
-psh.interpreter.max-random-float		= 2.0
-psh.interpreter.min-random-float		= -2.0
-psh.interpreter.random-float-res		= 0.01
+psh.interpreter.max-random-float		= 5.0
+psh.interpreter.min-random-float		= -5.0
+psh.interpreter.random-float-res		= 0.5
 
 psh.interpreter.instruction-list		= instructions.txt
 psh.problem.test-cases					= testcases.txt
 
- 
+
 ############ Genetic operators settings
 
 # Selection settings
 select.tournament.size					= 7
-
+ 
 # Mutation pipeline settings
 psh.breed.mutate.source.0				= ec.select.RandomSelection
 psh.breed.mutate.ns.0					= org.ecj.psh.UnbiasedNodeSelector
@@ -57,6 +59,7 @@ psh.breed.xover.source.0				= ec.select.TournamentSelection
 psh.breed.xover.source.1				= same 
 psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
 psh.breed.xover.ns.1					= same
+psh.breed.xover.toss					= false
 
 # Simplification pipeline settings
 psh.breed.simplify.source.0				= ec.select.RandomSelection
@@ -65,7 +68,7 @@ psh.breed.simplify.flatten-prob			= 0.20
 
 # Reproduction pipeline settings
 breed.reproduce.source.0 				= ec.select.RandomSelection
- 
+
 
 ########### Pipelines
 

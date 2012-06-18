@@ -19,17 +19,17 @@ import ec.gp.koza.KozaFitness;
 import ec.util.Parameter;
 
 /**
- * Simple symbolic regression problem for floating point numbers
+ * Simple symbolic regression problem for integer numbers
  * 
  * @author Tomasz Kamiński
  * 
  */
-public class FloatRegressionProblem extends PshProblem {
+public class IntRegressionProblem extends PshProblem {
 	
 	public static final String P_TESTCASES = "test-cases";
 	
 	// symbolic regression test cases
-	public ArrayList<Float[]> testCases;
+	public ArrayList<Integer[]> testCases;
 		
 	@Override
 	public void setup(final EvolutionState state, final Parameter base) {
@@ -41,19 +41,19 @@ public class FloatRegressionProblem extends PshProblem {
 		File testCasesFile = state.parameters.getFile(base.push(P_TESTCASES),
 				def.push(P_TESTCASES));
 		state.output.message(testCasesFile.toString());
-		testCases = new ArrayList<Float[]>();
+		testCases = new ArrayList<Integer[]>();
 		FileReader reader = null;
 		try {
 			reader = new FileReader(testCasesFile);
 			Scanner scanner = new Scanner(reader);
 			scanner.useLocale(Locale.US);
 			while (scanner.hasNextFloat()) {
-				float input = scanner.nextFloat();
-				float output = scanner.nextFloat();
-				testCases.add(new Float[]{input,output});
+				int input = scanner.nextInt();
+				int output = scanner.nextInt();
+				testCases.add(new Integer[]{input,output});
 			}
 		} catch (IOException e) {
-			state.output.fatal("Couldn't read test cases for float symbolic regression.");
+			state.output.fatal("Couldn't read test cases for integer symbolic regression.");
 		} finally {
 			if (reader != null)	try {
 					reader.close();
@@ -61,30 +61,33 @@ public class FloatRegressionProblem extends PshProblem {
 			}
 		}
 		state.output.message("Test cases: ");
-		for (Float[] testCase : testCases) {
+		for (Integer[] testCase : testCases) {
 			state.output.message("input = " + testCase[0] + ", output = "
 					+ testCase[1]);
 		}
 	}
 	
-	private float evaluateTestCase(Interpreter interpreter, Program program, float input, float output) {
+	private int evaluateTestCase(Interpreter interpreter, Program program, int input, int output) {
 		
 		interpreter.ClearStacks();
 		
 		// setting input value to input stack
-		interpreter.inputStack().push((Float)input);
+		interpreter.inputStack().push((Integer)input);
 
 		// executing the program
 		interpreter.Execute(program,
 				interpreter.getExecutionLimit());
 
 		// Penalize individual if there is no result on the stack.
-		if (interpreter.floatStack().size() == 0) {
-			return 1000.0f;
+		if (interpreter.intStack().size() == 0) {
+			return 1000;
 		}
 
 		// compute result as absolute difference
-		float error = Math.abs(interpreter.floatStack().top() - output);
+		int error = Math.abs(interpreter.intStack().top() - output);
+		
+		if (error == Integer.MIN_VALUE)
+			error = Integer.MAX_VALUE;
 		
 		return error;
 	}
@@ -103,28 +106,29 @@ public class FloatRegressionProblem extends PshProblem {
 		Interpreter interpreter = ((PshEvaluator) state.evaluator).interpreter[threadnum];
 		Program program = ((PshIndividual) ind).program;
 		
-		float fitness = 0.0f;
+		double meanError = 0.0f;
 		int hits = 0;
 		
-		for (Float[] testCase : testCases) {
-			float input = testCase[0];
-			float output = testCase[1];
+		for (Integer[] testCase : testCases) {
+			int input = testCase[0];
+			int output = testCase[1];
 
-			float error = evaluateTestCase(interpreter, program, input, output);
-			
-			if (error < 0.01)
+			int error = evaluateTestCase(interpreter, program, input, output);
+			if (error == 0)
 				hits++;
-			fitness += error;
+			
+			meanError += (double) error;
 		}
-		if (Float.isInfinite(fitness)) {
-			fitness = Float.MAX_VALUE;
+				
+		if (Double.isInfinite(meanError)) {
+			meanError = Float.MAX_VALUE;
 		} else {
 			// compute mean absolute error
-			fitness = fitness / (float) testCases.size();
+			meanError = meanError / (float) testCases.size();
 		}
 		
 		KozaFitness f = (KozaFitness) ind.fitness; 
-		f.setStandardizedFitness(state, fitness);
+		f.setStandardizedFitness(state, (float)meanError);
 		f.hits = hits;
 		ind.evaluated = true;
 	}

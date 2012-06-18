@@ -50,7 +50,7 @@ public abstract class PshProblem extends Problem implements SimpleProblemForm {
 
 		state.output.println("After simplifications: ", log);
 
-		Simplifier.autoSimplify(state, (PshIndividual) ind, this, 1000,
+		Simplifier.autoSimplify(state, (PshIndividual) ind, this, 100000,
 				subpopulation, threadnum, 0.2f);
 		state.output.println("\t" + ind, log);
 	}

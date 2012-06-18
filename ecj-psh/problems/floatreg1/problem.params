@@ -1,29 +1,45 @@
 
 ####### Simple float symbolic regression demo
-
-evalthreads		= 1
-breedthreads 	= 1
-#seed.0 		= 44328
-seed.0 			= time
-seed.1 			= 2
+####### This problem comes from floatreg1.pushgp problem, provided by Psh implementation
+####### The target function is :		y = 12x^2 + 5
 
 parent.0		= ../psh.params
-
+evalthreads		= 1
+breedthreads 	= 1
+seed.0 			= time
 
 # Problem to solve
 eval.problem	= org.ecj.psh.problem.FloatRegressionProblem
 
+# Threshold under which individuals are taken as ideal
+psh.ideal-threshold	= 0.1
 
 # General settings 
 generations			= 200
 pop.subpop.0.size	= 2000
 
- 
-# Tournament selection settings
-select.tournament.size					= 7
+# Statistics settings
+stat				= ec.simple.SimpleStatistics
+stat.file			= $out/floatreg1.stat
+stat.num-children	= 1
 
-# Reproduction pipeline settings
-breed.reproduce.source.0 				= ec.select.TournamentSelection
+stat.child.0		= ec.simple.SimpleShortStatistics
+stat.child.0.file	= $out/floatreg1-short.stat
+
+
+############ Interpreter settings
+
+psh.interpreter.max-random-code-size	= 40
+psh.interpreter.execution-limit			= 80
+
+psh.interpreter.instruction-list		= instructions.txt
+psh.problem.test-cases					= testcases.txt
+
+
+############ Genetic operators settings
+
+# Selection settings
+select.tournament.size					= 7
  
 # Mutation pipeline settings
 psh.breed.mutate.source.0				= ec.select.RandomSelection
@@ -41,6 +57,9 @@ psh.breed.xover.ns.1					= same
 psh.breed.simplify.source.0				= ec.select.TournamentSelection
 psh.breed.simplify.steps				= 25
 psh.breed.simplify.flatten-prob			= 0.20
+
+# Reproduction pipeline settings
+breed.reproduce.source.0 				= ec.select.TournamentSelection
 
 
 ########### Pipelines
@@ -66,14 +85,6 @@ pop.subpop.0.species.pipe.source.3		= ec.breed.ReproductionPipeline
 pop.subpop.0.species.pipe.source.3.prob	= 0.10
 
 
-############ Interpreter settings
-
-psh.interpreter.max-random-code-size	= 40
-psh.interpreter.execution-limit			= 80
-
-psh.interpreter.instruction-list		= instructions.txt
-psh.problem.test-cases					= testcases.txt
-
 #print-params = true
-print-unaccessed-params	= true
+#print-unaccessed-params	= true
 #print-accessed-params	= true

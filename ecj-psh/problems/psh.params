@@ -40,7 +40,7 @@ stat.file	= $out.stat
 ####### PushGP specific settings
 
 eval						= org.ecj.psh.PshEvaluator
-eval.interpreter			= org.spiderland.Psh.Interpreter
+psh.interpreter				= org.spiderland.Psh.Interpreter
 pop.subpop.0.species		= org.ecj.psh.PshSpecies
 pop.subpop.0.species.ind	= org.ecj.psh.PshIndividual
 
@@ -98,6 +98,8 @@ psh.breed.simplify.flatten-prob			= 0.20
 
 ############ Default Interpreter settings
 
+psh.interpreter.generate-flat			= false
+
 psh.interpreter.max-random-code-size	= 30
 psh.interpreter.execution-limit			= 100
 psh.interpreter.max-points-in-program	= 100
@@ -112,4 +114,4 @@ psh.interpreter.max-random-float		= 10.0
 psh.interpreter.min-random-float		= -10.0
 psh.interpreter.random-float-res		= 0.01
 
-#psh.interpreter.instruction-list		= instruction-list.dat
+#psh.interpreter.instruction-list		= instructions.dat

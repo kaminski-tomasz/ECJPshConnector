@@ -1,7 +1,7 @@
 
-####### Simple float symbolic regression demo
-####### This problem comes from floatreg2.pushgp problem, provided by Psh implementation
-####### The target function is :		y = 1.72x^2 - 0.68x^3
+####### Simple integer symbolic regression demo
+####### This problem comes from intreg2.pushgp problem, provided by Psh implementation
+####### The target function is :		y = x!
 
 parent.0		= ../psh.params
 evalthreads		= 1
@@ -9,43 +9,38 @@ breedthreads 	= 1
 seed.0 			= time
 
 # Problem to solve
-eval.problem	= org.ecj.psh.problem.FloatRegressionProblem
-
-# Threshold under which individuals are taken as ideal
-psh.ideal-threshold	= 0.1
+eval.problem		= org.ecj.psh.problem.IntRegressionProblem
 
 # General settings 
-generations			= 200
-pop.subpop.0.size	= 2000
+generations			= 500
+pop.subpop.0.size	= 1000
 
 # Statistics settings
 stat				= ec.simple.SimpleStatistics
-stat.file			= $out/floatreg2.stat
+stat.file			= $out/intreg2.stat
 stat.num-children	= 1
 
 stat.child.0		= ec.simple.SimpleShortStatistics
-stat.child.0.file	= $out/floatreg2-short.stat
+stat.child.0.file	= $out/intreg2-short.stat
 
 
 ############ Interpreter settings
+
+psh.interpreter.generate-flat			= false
 
 psh.interpreter.max-points-in-program	= 100
 psh.interpreter.execution-limit			= 150
 psh.interpreter.max-random-code-size	= 40
 
-psh.interpreter.max-random-float		= 2.0
-psh.interpreter.min-random-float		= -2.0
-psh.interpreter.random-float-res		= 0.01
-
 psh.interpreter.instruction-list		= instructions.txt
 psh.problem.test-cases					= testcases.txt
 
- 
+
 ############ Genetic operators settings
 
 # Selection settings
 select.tournament.size					= 7
-
+ 
 # Mutation pipeline settings
 psh.breed.mutate.source.0				= ec.select.RandomSelection
 psh.breed.mutate.ns.0					= org.ecj.psh.UnbiasedNodeSelector
@@ -57,6 +52,7 @@ psh.breed.xover.source.0				= ec.select.TournamentSelection
 psh.breed.xover.source.1				= same 
 psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
 psh.breed.xover.ns.1					= same
+psh.breed.xover.toss					= false
 
 # Simplification pipeline settings
 psh.breed.simplify.source.0				= ec.select.RandomSelection
@@ -65,7 +61,7 @@ psh.breed.simplify.flatten-prob			= 0.20
 
 # Reproduction pipeline settings
 breed.reproduce.source.0 				= ec.select.RandomSelection
- 
+
 
 ########### Pipelines
 
@@ -75,11 +71,11 @@ pop.subpop.0.species.pipe.generate-max	= false
 
 # Crossover pipeline
 pop.subpop.0.species.pipe.source.0		= org.ecj.psh.breed.CrossoverPipeline
-pop.subpop.0.species.pipe.source.0.prob	= 0.80
+pop.subpop.0.species.pipe.source.0.prob	= 0.55
 
 # Mutation pipeline
 pop.subpop.0.species.pipe.source.1		= org.ecj.psh.breed.MutationPipeline
-pop.subpop.0.species.pipe.source.1.prob	= 0.10
+pop.subpop.0.species.pipe.source.1.prob	= 0.30
 
 # Simplification pipeline
 pop.subpop.0.species.pipe.source.2		= org.ecj.psh.breed.SimplificationPipeline
@@ -87,9 +83,9 @@ pop.subpop.0.species.pipe.source.2.prob	= 0.05
 
 # Reproduction pipeline
 pop.subpop.0.species.pipe.source.3		= ec.breed.ReproductionPipeline
-pop.subpop.0.species.pipe.source.3.prob	= 0.05
+pop.subpop.0.species.pipe.source.3.prob	= 0.1
 
 
 #print-params = true
-#print-unaccessed-params	= true
+print-unaccessed-params	= true
 #print-accessed-params	= true

@@ -1,0 +1,3 @@
+registered.integer
+registered.input
+input.makeinputs1
