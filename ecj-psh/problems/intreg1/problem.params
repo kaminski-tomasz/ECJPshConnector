@@ -18,12 +18,12 @@ generations			= 200
 pop.subpop.0.size	= 2000
 
 # Statistics settings
-stat				= ec.simple.SimpleStatistics
-stat.file			= $out/intreg1.stat
-stat.num-children	= 1
-
-stat.child.0		= ec.simple.SimpleShortStatistics
-stat.child.0.file	= $out/intreg1-short.stat
+stat				= org.ecj.psh.PshShortStatistics
+#stat.file			= $out/intreg1.stat
+#stat.num-children	= 1
+#
+#stat.child.0		= ec.simple.SimpleShortStatistics
+#stat.child.0.file	= $out/intreg1-short.stat
 
 
 ############ Interpreter settings
@@ -39,28 +39,17 @@ psh.interpreter.instruction-list		= instructions.txt
 
 ############ Genetic operators settings
 
-# Selection settings
-select.tournament.size					= 7
- 
+# Tournament selection settings
+psh.select.trivial-geography.size		= 7
+psh.select.trivial-geography.radius		= 10
+
 # Mutation pipeline settings
-psh.breed.mutate.source.0				= ec.select.RandomSelection
-psh.breed.mutate.ns.0					= org.ecj.psh.UnbiasedNodeSelector
 psh.breed.mutate.use-fair				= true
 psh.breed.mutate.fair-mutation-range	= 0.50
 
-# Crossover pipeline settings
-psh.breed.xover.source.0				= ec.select.TournamentSelection
-psh.breed.xover.source.1				= ec.select.RandomSelection 
-psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
-psh.breed.xover.ns.1					= same
-psh.breed.xover.toss					= false
-
 # Simplification pipeline settings
-psh.breed.simplify.source.0				= ec.select.RandomSelection
 psh.breed.simplify.steps				= 25
-
-# Reproduction pipeline settings
-breed.reproduce.source.0 				= ec.select.RandomSelection
+psh.breed.simplify.flatten-prob			= 0.20
 
 
 ########### Pipelines
