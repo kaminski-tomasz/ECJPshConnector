@@ -343,7 +343,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
         }
 
 
-    public final int nextInt()
+    public int nextInt()
         {
         int y;
         
@@ -380,7 +380,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
 
 
 
-    public final short nextShort()
+    public short nextShort()
         {
         int y;
         
@@ -417,7 +417,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
 
 
 
-    public final char nextChar()
+    public char nextChar()
         {
         int y;
         
@@ -453,7 +453,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
         }
 
 
-    public final boolean nextBoolean()
+    public boolean nextBoolean()
         {
         int y;
         
@@ -496,7 +496,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
         event as nextBoolean(double), but twice as fast. To explicitly
         use this, remember you may need to cast to float first. */
 
-    public final boolean nextBoolean(final float probability)
+    public boolean nextBoolean(final float probability)
         {
         int y;
         
@@ -540,7 +540,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
         of returning true, else returning false.  <tt>probability</tt> must
         be between 0.0 and 1.0, inclusive. */
 
-    public final boolean nextBoolean(final double probability)
+    public boolean nextBoolean(final double probability)
         {
         int y;
         int z;
@@ -610,7 +610,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
         }
 
 
-    public final byte nextByte()
+    public byte nextByte()
         {
         int y;
         
@@ -646,7 +646,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
         }
 
 
-    public final void nextBytes(byte[] bytes)
+    public void nextBytes(byte[] bytes)
         {
         int y;
         
@@ -685,7 +685,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
         }
 
 
-    public final long nextLong()
+    public long nextLong()
         {
         int y;
         int z;
@@ -753,7 +753,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
 
     /** Returns a long drawn uniformly from 0 to n-1.  Suffice it to say,
         n must be > 0, or an IllegalArgumentException is raised. */
-    public final long nextLong(final long n)
+    public long nextLong(final long n)
         {
         if (n<=0)
             throw new IllegalArgumentException("n must be positive, got: " + n);
@@ -828,7 +828,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
 
     /** Returns a random double in the half-open range from [0.0,1.0).  Thus 0.0 is a valid
         result but 1.0 is not. */
-    public final double nextDouble()
+    public double nextDouble()
         {
         int y;
         int z;
@@ -897,7 +897,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
 
 
 
-    public final double nextGaussian()
+    public double nextGaussian()
         {
         if (__haveNextNextGaussian)
             {
@@ -1047,7 +1047,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
 
     /** Returns a random float in the half-open range from [0.0f,1.0f).  Thus 0.0f is a valid
         result but 1.0f is not. */
-    public final float nextFloat()
+    public float nextFloat()
         {
         int y;
         
@@ -1086,7 +1086,7 @@ public strictfp class MersenneTwisterFast implements Serializable, Cloneable
 
     /** Returns an integer drawn uniformly from 0 to n-1.  Suffice it to say,
         n must be > 0, or an IllegalArgumentException is raised. */
-    public final int nextInt(final int n)
+    public int nextInt(final int n)
         {
         if (n<=0)
             throw new IllegalArgumentException("n must be positive, got: " + n);
