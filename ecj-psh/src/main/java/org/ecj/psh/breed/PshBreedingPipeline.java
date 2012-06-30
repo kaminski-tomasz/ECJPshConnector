@@ -23,7 +23,7 @@ public abstract class PshBreedingPipeline extends BreedingPipeline {
 		if (!super.produces(state, newpop, subpopulation, thread))
 			return false;
 
-		// we produce individuals which are owned by subclasses of GPSpecies
+		// we produce individuals which are owned by subclasses of PshSpecies
 		if (newpop.subpops[subpopulation].species instanceof PshSpecies)
 			return true;
 		return false;

@@ -45,26 +45,26 @@ public class Interpreter implements Prototype {
 	public static final String P_INTERPRETER = "interpreter";
 
 	public static final String P_INSTRUCTIONLIST = "instruction-list";
-	
+
 	public static final String P_MAXRANDCODESIZE = "max-random-code-size";
 	public static final String P_EXECUTIONLIMIT = "execution-limit";
 	public static final String P_MAXPOINTSINPROG = "max-points-in-program";
-	
+
 	public static final String P_USEFRAMES = "push-frame-mode";
-	
+
 	public static final String P_MAXRANDINT = "max-random-integer";
 	public static final String P_MINRANDINT = "min-random-integer";
 	public static final String P_RANDINTRES = "random-integer-res";
-	
+
 	public static final String P_MAXRANDFLOAT = "max-random-float";
 	public static final String P_MINRANDFLOAT = "min-random-float";
 	public static final String P_RANDFLOATRES = "random-float-res";
-	
+
 	public static final String P_GENERATEFLAT = "generate-flat";
-	
+
 	// Random code generator
 	protected MersenneTwisterFast _RNG;
-	
+
 	protected HashMap<String, Instruction> _instructions = new HashMap<String, Instruction>();
 
 	// All generators
@@ -80,12 +80,13 @@ public class Interpreter implements Prototype {
 	protected ObjectStack _execStack = new ObjectStack();
 
 	protected ObjectStack _inputStack = new ObjectStack();
-	
+
 	// This arraylist will hold all custom stacks that can be created by the
 	// problem classes
 	protected ArrayList<Stack> _customStacks = new ArrayList<Stack>();
 
-	/* Since the _inputStack will not change after initialization, it will not
+	/*
+	 * Since the _inputStack will not change after initialization, it will not
 	 * need a frame stack.
 	 */
 	protected ObjectStack _intFrameStack = new ObjectStack();
@@ -96,13 +97,13 @@ public class Interpreter implements Prototype {
 
 	protected int _totalStepsTaken;
 	protected long _evaluationExecutions = 0;
-	
+
 	private int _maxRandomCodeSize;
 	private int _executionLimit;
 	private int _maxPointsInProgram;
-	
+
 	protected boolean _useFrames;
-	
+
 	protected int _maxRandomInt;
 	protected int _minRandomInt;
 	protected int _randomIntResolution;
@@ -112,21 +113,21 @@ public class Interpreter implements Prototype {
 	protected float _randomFloatResolution;
 
 	protected boolean _generateFlatPrograms;
-	
+
 	protected InputPusher _inputPusher = new InputPusher();
-	
+
 	public void setRNG(MersenneTwisterFast _RNG) {
 		this._RNG = _RNG;
 	}
-	
+
 	public Interpreter() {
 	}
-	
+
 	@Override
 	public Parameter defaultBase() {
 		return PshDefaults.base().push(P_INTERPRETER);
 	}
-	
+
 	@Override
 	public Object clone() {
 		try {
@@ -135,64 +136,54 @@ public class Interpreter implements Prototype {
 			throw new InternalError();
 		} // never happens
 	}
-	
+
 	@Override
 	public void setup(EvolutionState state, Parameter base) {
-		
+
 		Parameter def = defaultBase();
 
 		// max. random code size, default 30
 		setMaxRandomCodeSize(state.parameters.getIntWithDefault(
-				base.push(P_MAXRANDCODESIZE),
-				def.push(P_MAXRANDCODESIZE), 30));
+				base.push(P_MAXRANDCODESIZE), def.push(P_MAXRANDCODESIZE), 30));
 		// execution limit for Push programs
 		setExecutionLimit(state.parameters.getIntWithDefault(
-				base.push(P_EXECUTIONLIMIT),
-				def.push(P_EXECUTIONLIMIT), 100));
+				base.push(P_EXECUTIONLIMIT), def.push(P_EXECUTIONLIMIT), 100));
 		// max number of points in program
 		setMaxPointsInProgram(state.parameters.getIntWithDefault(
-				base.push(P_MAXPOINTSINPROG),
-				def.push(P_MAXPOINTSINPROG), 100));
-		
+				base.push(P_MAXPOINTSINPROG), def.push(P_MAXPOINTSINPROG), 100));
+
 		// maximum random integer
 		_maxRandomInt = state.parameters.getIntWithDefault(
-				base.push(P_MAXRANDINT),
-				def.push(P_MAXRANDINT), 10);
+				base.push(P_MAXRANDINT), def.push(P_MAXRANDINT), 10);
 		// minimum random integer
 		_minRandomInt = state.parameters.getIntWithDefault(
-				base.push(P_MINRANDINT),
-				def.push(P_MINRANDINT), -10);
+				base.push(P_MINRANDINT), def.push(P_MINRANDINT), -10);
 		// random integer resolution
 		_randomIntResolution = state.parameters.getIntWithDefault(
-				base.push(P_RANDINTRES),
-				def.push(P_RANDINTRES), 1);
-		
+				base.push(P_RANDINTRES), def.push(P_RANDINTRES), 1);
+
 		// maximum random float
 		_maxRandomFloat = state.parameters.getFloatWithDefault(
-				base.push(P_MAXRANDFLOAT),
-				def.push(P_MAXRANDFLOAT), 10.0);
+				base.push(P_MAXRANDFLOAT), def.push(P_MAXRANDFLOAT), 10.0);
 		// minimum random float
 		_minRandomFloat = state.parameters.getFloatWithDefault(
-				base.push(P_MINRANDFLOAT),
-				def.push(P_MINRANDFLOAT), -10.0);
+				base.push(P_MINRANDFLOAT), def.push(P_MINRANDFLOAT), -10.0);
 		// random integer float
 		_randomFloatResolution = state.parameters.getFloatWithDefault(
-				base.push(P_RANDFLOATRES),
-				def.push(P_RANDFLOATRES), 0.01);
-		
+				base.push(P_RANDFLOATRES), def.push(P_RANDFLOATRES), 0.01);
+
 		// should we use push frame mode
-		_useFrames = state.parameters.getBoolean(
-				base.push(P_USEFRAMES),
+		_useFrames = state.parameters.getBoolean(base.push(P_USEFRAMES),
 				def.push(P_USEFRAMES), false);
-		
+
 		// should we generate flat programs (without parentheses)
 		_generateFlatPrograms = state.parameters.getBoolean(
 				base.push(P_GENERATEFLAT), def.push(P_GENERATEFLAT), false);
-		
+
 		File instructionListFile = state.parameters.getFile(
 				base.push(P_INSTRUCTIONLIST), def.push(P_INSTRUCTIONLIST));
 		StringBuilder sb = new StringBuilder();
-		
+
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new FileInputStream(instructionListFile.getAbsolutePath())));
@@ -214,10 +205,11 @@ public class Interpreter implements Prototype {
 		}
 		try {
 			Program instructionList = new Program(sb.toString());
-			state.output.message("Instruction list for PushGP: " + instructionList);
+			state.output.message("Instruction list for PushGP: "
+					+ instructionList);
 			SetInstructions(instructionList);
 		} catch (Exception e) {
-			state.output.fatal("Can't set instruction list"); 
+			state.output.fatal("Can't set instruction list");
 		}
 	}
 
@@ -226,9 +218,9 @@ public class Interpreter implements Prototype {
 		if (_RNG == null) {
 			throw new InternalError();
 		}
-		
+
 		this._RNG = _RNG;
-		
+
 		_useFrames = false;
 		PushStacks();
 
@@ -273,7 +265,7 @@ public class Interpreter implements Prototype {
 		DefineInstruction("float.frominteger", new FloatFromInteger());
 		DefineInstruction("float.fromboolean", new FloatFromBoolean());
 		DefineInstruction("float.rand", new FloatRand(this._RNG));
-		
+
 		DefineInstruction("boolean.=", new BoolEquals());
 		DefineInstruction("boolean.not", new BoolNot());
 		DefineInstruction("boolean.and", new BoolAnd());
@@ -288,9 +280,10 @@ public class Interpreter implements Prototype {
 		DefineInstruction("code.frominteger", new CodeFromInteger());
 		DefineInstruction("code.fromfloat", new CodeFromFloat());
 		DefineInstruction("code.noop", new ExecNoop());
-		
+
 		DefineInstruction("exec.k", new ExecK(_execStack));
-		DefineInstruction("exec.s", new ExecS(_execStack, getMaxPointsInProgram()));
+		DefineInstruction("exec.s", new ExecS(_execStack,
+				getMaxPointsInProgram()));
 		DefineInstruction("exec.y", new ExecY(_execStack));
 		DefineInstruction("exec.noop", new ExecNoop());
 
@@ -304,9 +297,11 @@ public class Interpreter implements Prototype {
 		DefineInstruction("exec.=", new ObjectEquals(_execStack));
 		DefineInstruction("code.if", new If(_codeStack));
 		DefineInstruction("exec.if", new If(_execStack));
-		DefineInstruction("code.rand", new RandomPushCode(_codeStack, this._RNG));
-		DefineInstruction("exec.rand", new RandomPushCode(_execStack, this._RNG));
-		
+		DefineInstruction("code.rand",
+				new RandomPushCode(_codeStack, this._RNG));
+		DefineInstruction("exec.rand",
+				new RandomPushCode(_execStack, this._RNG));
+
 		DefineInstruction("true", new BooleanConstant(true));
 		DefineInstruction("false", new BooleanConstant(false));
 
@@ -328,7 +323,7 @@ public class Interpreter implements Prototype {
 		_generators.put("float.erc", new FloatAtomGenerator());
 		_generators.put("integer.erc", new IntAtomGenerator());
 	}
-	
+
 	/**
 	 * Enables experimental Push "frames"
 	 * 
@@ -368,7 +363,7 @@ public class Interpreter implements Prototype {
 						name = key;
 						break;
 					}
-			} else if (o instanceof String){
+			} else if (o instanceof String) {
 				name = (String) o;
 			} else
 				throw new RuntimeException(
@@ -462,7 +457,7 @@ public class Interpreter implements Prototype {
 		DefineInstruction(inTypeName + ".yank", new Yank(inStack));
 		DefineInstruction(inTypeName + ".yankdup", new YankDup(inStack));
 	}
-	
+
 	/**
 	 * Sets the parameters for the ERCs.
 	 * 
@@ -485,7 +480,7 @@ public class Interpreter implements Prototype {
 		_minRandomFloat = minRandomFloat;
 		_maxRandomFloat = maxRandomFloat;
 		_randomFloatResolution = randomFloatResolution;
-		
+
 		setMaxRandomCodeSize(maxRandomCodeSize);
 		setMaxPointsInProgram(maxPointsInProgram);
 	}
@@ -539,7 +534,7 @@ public class Interpreter implements Prototype {
 
 	public int Step(int inMaxSteps) {
 		int executed = 0;
-		while (inMaxSteps != 0 && _execStack.size() > 0) {			
+		while (inMaxSteps != 0 && _execStack.size() > 0) {
 			ExecuteInstruction(_execStack.pop());
 			inMaxSteps--;
 			executed++;
@@ -653,18 +648,18 @@ public class Interpreter implements Prototype {
 	public ObjectStack inputStack() {
 		return _inputStack;
 	}
-	
+
 	/**
 	 * Fetch the indexed custom stack
 	 */
-	public Stack getCustomStack(int inIndex){
+	public Stack getCustomStack(int inIndex) {
 		return _customStacks.get(inIndex);
 	}
-	
+
 	/**
 	 * Add a custom stack, and return that stack's index
 	 */
-	public int addCustomStack(Stack inStack){
+	public int addCustomStack(Stack inStack) {
 		_customStacks.add(inStack);
 		return _customStacks.size() - 1;
 	}
@@ -776,9 +771,9 @@ public class Interpreter implements Prototype {
 		_boolStack.clear();
 		_codeStack.clear();
 		_inputStack.clear();
-		
+
 		// Clear all custom stacks
-		for(Stack s : _customStacks){
+		for (Stack s : _customStacks) {
 			s.clear();
 		}
 	}
@@ -796,12 +791,13 @@ public class Interpreter implements Prototype {
 
 		return list;
 	}
-	
+
 	/**
 	 * Returns a string of all the instructions used in this run.
+	 * 
 	 * @return
 	 */
-	public String GetInstructionsString(){
+	public String GetInstructionsString() {
 		Object keys[] = _instructions.keySet().toArray();
 		ArrayList<String> strings = new ArrayList<String>();
 		String str = "";
@@ -809,24 +805,24 @@ public class Interpreter implements Prototype {
 		for (int i = 0; i < keys.length; i++) {
 			String key = (String) keys[i];
 
-			if(_randomGenerators.contains(_generators.get(key))){
+			if (_randomGenerators.contains(_generators.get(key))) {
 				strings.add(key);
 			}
-	
+
 		}
-		
-		if(_randomGenerators.contains(_generators.get("float.erc"))){
+
+		if (_randomGenerators.contains(_generators.get("float.erc"))) {
 			strings.add("float.erc");
 		}
-		if(_randomGenerators.contains(_generators.get("integer.erc"))){
+		if (_randomGenerators.contains(_generators.get("integer.erc"))) {
 			strings.add("integer.erc");
 		}
 
 		Collections.sort(strings);
-		for(String s : strings){
+		for (String s : strings) {
 			str += s + " ";
 		}
-		
+
 		return str.substring(0, str.length() - 1);
 	}
 
@@ -845,10 +841,10 @@ public class Interpreter implements Prototype {
 	 * 
 	 * @return The number of evaluation executions during this run.
 	 */
-	public long GetEvaluationExecutions(){
+	public long GetEvaluationExecutions() {
 		return _evaluationExecutions;
 	}
-	
+
 	public InputPusher getInputPusher() {
 		return _inputPusher;
 	}
@@ -856,7 +852,7 @@ public class Interpreter implements Prototype {
 	public void setInputPusher(InputPusher _inputPusher) {
 		this._inputPusher = _inputPusher;
 	}
-	
+
 	/**
 	 * Generates a single random Push atom (instruction name, integer, float,
 	 * etc) for use in random code generation algorithms.
@@ -894,9 +890,9 @@ public class Interpreter implements Prototype {
 				if (_generateFlatPrograms) {
 					for (int j = 0; j < count; j++) {
 						p.push(RandomAtom());
-					}	
+					}
 				} else {
-					p.push(RandomCode(count));	
+					p.push(RandomCode(count));
 				}
 			}
 		}
@@ -921,14 +917,16 @@ public class Interpreter implements Prototype {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 
 		RandomCodeDistribution(result, inCount, inMaxElements);
-	
+
 		for (int i = 0; i < result.size(); i++) {
 			int j = this._RNG.nextInt(result.size());
+			if (i == j)
+				continue;
 			int iElem = result.get(i);
 			result.set(i, result.get(j));
 			result.set(j, iElem);
 		}
-		
+
 		return result;
 	}
 
@@ -1003,7 +1001,8 @@ public class Interpreter implements Prototype {
 		private static final long serialVersionUID = 1L;
 
 		Object Generate(Interpreter inInterpreter) {
-			float r = inInterpreter._RNG.nextFloat() * (_maxRandomFloat - _minRandomFloat);
+			float r = inInterpreter._RNG.nextFloat()
+					* (_maxRandomFloat - _minRandomFloat);
 
 			r -= (r % _randomFloatResolution);
 

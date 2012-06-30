@@ -96,39 +96,42 @@ public class MutationPipeline extends PshBreedingPipeline {
 
 		// mutate 'em
 		for (int i = start; i < n + start; i++) {
-
 			PshIndividual ind = (PshIndividual) inds[i];
-
-			int totalsize = ind.program.programsize();
-			int which = this.nodeSelector.pickNode(state, subpopulation,
-					thread, ind);
-
-			int oldsize = ind.program.SubtreeSize(which);
-			int newsize = 0;
-
-			if (useFairMutation) {
-				int range = (int) Math.max(1, fairMutationRange * oldsize);
-				newsize = Math.max(1,
-						oldsize + state.random[thread].nextInt(2 * range)
-								- range);
-			} else {
-				newsize = state.random[thread].nextInt(interpreter.getMaxRandomCodeSize());
-			}
-
-			Object newtree;
-
-			if (newsize == 1)
-				newtree = interpreter.RandomAtom();
-			else
-				newtree = interpreter.RandomCode(newsize);
-
-			if (newsize + totalsize - oldsize <= interpreter.getMaxPointsInProgram()) {
-				ind.program.ReplaceSubtree(which, newtree);
-				ind.evaluated = false;
-			}
+			mutate(subpopulation, state, thread, interpreter, ind);
 		}
 
 		return n;
+	}
+
+	protected void mutate(int subpopulation, EvolutionState state, int thread,
+			Interpreter interpreter, PshIndividual ind) {
+		int totalsize = ind.program.programsize();
+		int which = this.nodeSelector.pickNode(state, subpopulation,
+				thread, ind);
+
+		int oldsize = ind.program.SubtreeSize(which);
+		int newsize = 0;
+
+		if (useFairMutation) {
+			int range = (int) Math.max(1, fairMutationRange * oldsize);
+			newsize = Math.max(1,
+					oldsize + state.random[thread].nextInt(2 * range)
+							- range);
+		} else {
+			newsize = state.random[thread].nextInt(interpreter.getMaxRandomCodeSize());
+		}
+
+		Object newtree;
+
+		if (newsize == 1)
+			newtree = interpreter.RandomAtom();
+		else
+			newtree = interpreter.RandomCode(newsize);
+
+		if (newsize + totalsize - oldsize <= interpreter.getMaxPointsInProgram()) {
+			ind.program.ReplaceSubtree(which, newtree);
+			ind.evaluated = false;
+		}
 	}
 
 }

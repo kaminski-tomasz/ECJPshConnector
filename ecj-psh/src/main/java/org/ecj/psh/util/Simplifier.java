@@ -64,7 +64,7 @@ public class Simplifier {
 
 				if (trial.fitness.betterThan(simplest.fitness)
 						|| trial.fitness.equivalentTo(simplest.fitness)) {
-					simplest = trial.clone();
+					simplest = trial.clone();	// FIXME check if cloning is needed here
 				}
 			}
 			madeSimpler = false;

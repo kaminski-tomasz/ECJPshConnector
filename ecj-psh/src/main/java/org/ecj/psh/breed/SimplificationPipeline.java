@@ -79,7 +79,7 @@ public class SimplificationPipeline extends PshBreedingPipeline {
 		// simplify 'em
 		for (int i = start; i < n + start; i++) {
 			PshIndividual ind = (PshIndividual) inds[i];
-			Simplifier.autoSimplify(state, ind, problem, this.simplificationSteps,
+			Simplifier.autoSimplify(state, ind, problem, simplificationSteps,
 					subpopulation, thread, simplifyByFlattenProb);
 			ind.evaluated = false;
 		}

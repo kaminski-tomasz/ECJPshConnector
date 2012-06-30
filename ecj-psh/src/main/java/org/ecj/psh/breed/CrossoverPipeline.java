@@ -89,7 +89,7 @@ public class CrossoverPipeline extends PshBreedingPipeline {
 
 		// should we toss second parent?
 		tossSecondParent = state.parameters.getBoolean(base.push(P_TOSS),
-				def.push(P_TOSS), false);
+				def.push(P_TOSS), true);
 	}
 
 	/**
@@ -175,14 +175,11 @@ public class CrossoverPipeline extends PshBreedingPipeline {
 			}
 
 			// add 'em to the population
-			inds[q] = parents[0];
-			q++;
+			inds[q++] = parents[0];
 			if (q < n + start && !tossSecondParent) {
-				inds[q] = parents[1];
-				q++;
+				inds[q++] = parents[1];
 			}
 		}
-
 		return n;
 	}
 

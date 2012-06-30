@@ -13,9 +13,9 @@ import ec.util.Parameter;
 
 /**
  * Crossover operator for flat programs. Default is one-point.
- *  
+ * 
  * @author Tomasz Kamiński
- *
+ * 
  */
 public class FlatCrossoverPipeline extends PshBreedingPipeline {
 
@@ -32,17 +32,14 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 
 	/** Should the pipeline discard the second parent after crossing over? */
 	public boolean tossSecondParent;
-	
+
 	/** Temporary holding place for parents */
 	PshIndividual parents[];
 
-	/** Max. points in program, value copied from interpreter */
-	int maxPointsInProgram;
-	
-	public FlatCrossoverPipeline () {
+	public FlatCrossoverPipeline() {
 		parents = new PshIndividual[2];
 	}
-	
+
 	@Override
 	public Parameter defaultBase() {
 		return PshBreedDefaults.base().push(P_FLATCROSSOVER);
@@ -52,33 +49,19 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 	public int numSources() {
 		return NUM_SOURCES;
 	}
-	
+
 	@Override
 	public Object clone() {
 		FlatCrossoverPipeline c = (FlatCrossoverPipeline) (super.clone());
 		c.parents = (PshIndividual[]) parents.clone();
 		return c;
 	}
-	
+
 	@Override
 	public void setup(final EvolutionState state, final Parameter base) {
 		super.setup(state, base);
 		Parameter def = defaultBase();
 
-		// check whether generated programs are flat (thus it's a linear gp)
-		Parameter generateFlatParam = PshDefaults.base()
-				.push(Interpreter.P_INTERPRETER)
-				.push(Interpreter.P_GENERATEFLAT);
-		boolean generateFlatPrograms = state.parameters.getBoolean(null,
-				generateFlatParam, false);
-				 
-		if (generateFlatPrograms == false) {
-			state.output.warning(
-					"Generated programs should be flat in order to properly use flat crossover,"
-							+ " but default parameter isn't set to 'true'. Assuming generate-flat=true",
-					null, generateFlatParam);
-		}
-		
 		// crossover type
 		String ctype = state.parameters.getStringWithDefault(
 				base.push(P_CROSSOVERTYPE), def.push(P_CROSSOVERTYPE), null);
@@ -90,11 +73,12 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 					base.push(P_CROSSOVERTYPE), def.push(P_CROSSOVERTYPE));
 		else if (ctype.equalsIgnoreCase(V_ONE_POINT))
 			crossoverType = C_ONE_POINT; // redundant
-        
+
 		// should we toss second parent?
 		tossSecondParent = state.parameters.getBoolean(base.push(P_TOSS),
-				def.push(P_TOSS), false);
+				def.push(P_TOSS), true);
 	}
+
 	/**
 	 * Returns 2 * minimum number of typical individuals produced by any
 	 * sources, else 1* minimum number if tossSecondParent is true.
@@ -103,7 +87,7 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 		return (tossSecondParent ? minChildProduction()
 				: minChildProduction() * 2);
 	}
-	
+
 	@Override
 	public int produce(int min, int max, int start, int subpopulation,
 			Individual[] inds, EvolutionState state, int thread) {
@@ -118,9 +102,6 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 		// should we bother?
 		if (!state.random[thread].nextBoolean(likelihood))
 			return reproduce(n, start, subpopulation, inds, state, thread, true);
-
-		maxPointsInProgram = ((PshEvaluator) state.evaluator).interpreter[thread]
-				.getMaxPointsInProgram();
 
 		// keep on going until we're filled up
 		for (int q = start; q < n + start; /* no increment */) {
@@ -146,12 +127,9 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 					parents[1] = (PshIndividual) (parents[1].clone());
 				}
 			}
-			
+
 			boolean breedSecondParent = n - (q - start) >= 2
 					&& !tossSecondParent;
-			// state.output.println("=========================================",0);
-			// state.output.println("Parents before crossover: \n\t"+parents[0]+"\n\t"+parents[1],
-			// 0);
 
 			// cross them over
 			if (crossoverType == C_ONE_POINT) {
@@ -159,15 +137,10 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 				onePointCrossover(breedSecondParent, state, thread);
 			}
 
-			// state.output.println("Parents after crossover: \n\t"+parents[0]+"\n\t"+parents[1],
-			// 0);
-
 			// add 'em to the population
-			inds[q] = parents[0];
-			q++;
+			inds[q++] = parents[0];
 			if (q < n + start && !tossSecondParent) {
-				inds[q] = parents[1];
-				q++;
+				inds[q++] = parents[1];
 			}
 			state.output.flush();
 		}
@@ -175,23 +148,29 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 	}
 
 	/**
-	 * One-point flat crossover. Assumes that parents holds current parents for crossover operation.
-	 * @param breedSecondParent do we breed second parent?
-	 * @param maxPointsInProgram maximum length of breeded programs
+	 * One-point flat crossover. Assumes that parents holds current parents for
+	 * crossover operation.
+	 * 
+	 * @param breedSecondParent
+	 *            do we breed second parent?
+	 * @param maxPointsInProgram
+	 *            maximum length of breeded programs
 	 */
-	protected void onePointCrossover(boolean breedSecondParent, EvolutionState state, int thread) {
-		
+	protected void onePointCrossover(boolean breedSecondParent,
+			EvolutionState state, int thread) {
+
+		int maxPointsInProgram = ((PshEvaluator) state.evaluator).interpreter[thread]
+				.getMaxPointsInProgram();
+
 		int parent1size = parents[0].program.size();
 		int parent2size = parents[1].program.size();
-		// state.output.println("Parent sizes before xover: " + parent1size +
-		// ", " + parent2size, 0);
 
 		// check if we can crossover
-		if (parent1size <= 1 || parent2size <= 1) 
+		if (parent1size <= 1 || parent2size <= 1)
 			return;
-		
+
 		Program child1 = null, child2 = null;
-		
+
 		int cutpoint1, cutpoint2;
 		do {
 			cutpoint1 = state.random[thread].nextInt(parent1size - 1) + 1;
@@ -200,8 +179,6 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 			} while (cutpoint1 + parent2size - cutpoint2 > maxPointsInProgram);
 		} while (breedSecondParent
 				&& (cutpoint2 + parent1size - cutpoint1 > maxPointsInProgram));
-		// state.output.println("Cut points: " + cutpoint1 + ", " + cutpoint2,
-		// 0);
 
 		// breed first parent
 		{
@@ -215,7 +192,7 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 				child1.push(parents[1].program.peek(index2));
 			}
 		}
-		
+
 		// breed second parent
 		if (breedSecondParent) {
 			child2 = new Program();
@@ -228,17 +205,14 @@ public class FlatCrossoverPipeline extends PshBreedingPipeline {
 				child2.push(parents[0].program.peek(index1));
 			}
 		}
-		
+
 		parents[0].program = child1;
 		parents[0].evaluated = false;
-		
+
 		if (breedSecondParent) {
 			parents[1].program = child2;
 			parents[1].evaluated = false;
 		}
-		// state.output.println("Parent sizes after xover: " +
-		// parents[0].program.size() + ", " + parents[1].program.size(), 0);
-
 	}
 
 }
