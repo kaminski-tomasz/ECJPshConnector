@@ -3,6 +3,7 @@ package org.ecj.psh;
 import ec.EvolutionState;
 import ec.Individual;
 import ec.gp.koza.KozaFitness;
+import ec.simple.SimpleProblemForm;
 import ec.simple.SimpleShortStatistics;
 
 /**
@@ -52,10 +53,20 @@ public class PshShortStatistics extends SimpleShortStatistics {
 							+ " "
 							+ ((KozaFitness) best_of_run[x].fitness)
 									.standardizedFitness() + " ", statisticslog);
-			
-
 		}
 		// we're done!
+	}
+	
+	 /** Logs the best individual of the run. */
+	public void finalStatistics(final EvolutionState state, final int result) {
+		for (int x = 0; x < state.population.subpops.length; x++) {
+			PshIndividual ind = (PshIndividual) best_of_run[x];
+			KozaFitness fitness = (KozaFitness) ind.fitness;
+			state.output.println(
+					"" + fitness.isIdealFitness() + " " + ind.size() + " "
+							+ fitness.standardizedFitness() + " "
+							+ fitness.adjustedFitness(), statisticslog);
+		}
 	}
 
 }

@@ -92,5 +92,13 @@ public class PshIndividual extends Individual {
 			throw new IOException(e.getMessage());
 		}
 	}
+	
+	/**
+	 * Size of the program
+	 */
+	@Override
+	public long size() {
+		return this.program.programsize();
+	}
 
 }
