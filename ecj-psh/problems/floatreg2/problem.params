@@ -64,7 +64,7 @@ pop.subpop.0.species.pipe.num-sources 	= 4
 pop.subpop.0.species.pipe.generate-max	= false
 
 # Crossover pipeline
-pop.subpop.0.species.pipe.source.0		= org.ecj.psh.breed.CrossoverPipeline
+pop.subpop.0.species.pipe.source.0		= org.ecj.psh.breed.PshCrossover
 pop.subpop.0.species.pipe.source.0.prob	= 0.80
 
 # Mutation pipeline
@@ -81,5 +81,5 @@ pop.subpop.0.species.pipe.source.3.prob	= 0.05
 
 
 #print-params = true
-print-unaccessed-params	= true
+#print-unaccessed-params	= true
 #print-accessed-params	= true

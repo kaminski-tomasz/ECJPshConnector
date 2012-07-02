@@ -2,8 +2,6 @@ package org.ecj.psh.breed;
 
 import org.ecj.psh.PshEvaluator;
 import org.ecj.psh.PshIndividual;
-import org.ecj.psh.PshNodeSelector;
-import org.ecj.psh.PshProblem;
 import org.spiderland.Psh.Interpreter;
 
 import ec.BreedingPipeline;
@@ -25,11 +23,10 @@ public class MutationPipeline extends PshBreedingPipeline {
 	public static final String P_FAIRRANGE = "fair-mutation-range";
 	public static final int NUM_SOURCES = 1;
 
-	/** How the pipeline chooses a subtree to mutate */
-	public PshNodeSelector nodeSelector;
-
+	/** should we use fair mutation */
 	public boolean useFairMutation;
 
+	/** range for fair mutation */
 	public float fairMutationRange;
 
 	@Override
@@ -43,25 +40,9 @@ public class MutationPipeline extends PshBreedingPipeline {
 	}
 
 	@Override
-	public Object clone() {
-		MutationPipeline c = (MutationPipeline) (super.clone());
-		// deep-cloned stuff
-		c.nodeSelector = (PshNodeSelector) (nodeSelector.clone());
-		return c;
-	}
-
-	@Override
 	public void setup(final EvolutionState state, final Parameter base) {
 		super.setup(state, base);
-
 		Parameter def = defaultBase();
-		Parameter p = base.push(P_NODESELECTOR).push("" + 0);
-		Parameter d = def.push(P_NODESELECTOR).push("" + 0);
-
-		nodeSelector = (PshNodeSelector) (state.parameters
-				.getInstanceForParameter(p, d, PshNodeSelector.class));
-		nodeSelector.setup(state, p);
-
 		// should we use fair mutation mode?
 		useFairMutation = state.parameters.getBoolean(base.push(P_FAIR),
 				def.push(P_FAIR), true);
@@ -91,23 +72,24 @@ public class MutationPipeline extends PshBreedingPipeline {
 			}
 		}
 
-		// we hold Interpreter in Evaluator object
-		Interpreter interpreter = ((PshEvaluator) state.evaluator).interpreter[thread];
-
 		// mutate 'em
 		for (int i = start; i < n + start; i++) {
 			PshIndividual ind = (PshIndividual) inds[i];
-			mutate(subpopulation, state, thread, interpreter, ind);
+			mutate(ind, state, thread);
 		}
-
 		return n;
 	}
 
-	protected void mutate(int subpopulation, EvolutionState state, int thread,
-			Interpreter interpreter, PshIndividual ind) {
+	protected void mutate(PshIndividual ind, EvolutionState state, int thread) {
+		
+		Interpreter interpreter = ((PshEvaluator) state.evaluator).interpreter[thread]; 
+		int maxPointsInProgram = interpreter.getMaxPointsInProgram();
+		int maxRandomCodeSize = interpreter.getMaxRandomCodeSize();
+		
 		int totalsize = ind.program.programsize();
-		int which = this.nodeSelector.pickNode(state, subpopulation,
-				thread, ind);
+		int which = 0;
+		if (totalsize > 0)
+			which = state.random[thread].nextInt(totalsize);
 
 		int oldsize = ind.program.SubtreeSize(which);
 		int newsize = 0;
@@ -118,7 +100,7 @@ public class MutationPipeline extends PshBreedingPipeline {
 					oldsize + state.random[thread].nextInt(2 * range)
 							- range);
 		} else {
-			newsize = state.random[thread].nextInt(interpreter.getMaxRandomCodeSize());
+			newsize = state.random[thread].nextInt(maxRandomCodeSize);
 		}
 
 		Object newtree;
@@ -128,7 +110,7 @@ public class MutationPipeline extends PshBreedingPipeline {
 		else
 			newtree = interpreter.RandomCode(newsize);
 
-		if (newsize + totalsize - oldsize <= interpreter.getMaxPointsInProgram()) {
+		if (newsize + totalsize - oldsize <= maxPointsInProgram) {
 			ind.program.ReplaceSubtree(which, newtree);
 			ind.evaluated = false;
 		}

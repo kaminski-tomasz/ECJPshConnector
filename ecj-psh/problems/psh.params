@@ -3,7 +3,7 @@
 
 evalthreads			= 1
 breedthreads 		= 1
-seed.0 				= 1234
+seed.0 				= time
 
 checkpoint 			= false
 checkpoint-modulo	= 1
@@ -76,6 +76,7 @@ psh.interpreter.random-float-res		= 0.01
 ####### Specifying default breeding pipelines parameters
 
 # Tournament selection settings
+# select.tournament.size					= 7
 psh.select.trivial-geography.size		= 7
 psh.select.trivial-geography.radius		= 0
 
@@ -84,22 +85,23 @@ breed.reproduce.source.0 				= org.ecj.psh.select.TrivialGeographySelection
  
 # Mutation pipeline settings
 psh.breed.mutate.source.0				= org.ecj.psh.select.TrivialGeographySelection
-psh.breed.mutate.ns.0					= org.ecj.psh.UnbiasedNodeSelector
 psh.breed.mutate.use-fair				= true
 psh.breed.mutate.fair-mutation-range	= 0.30
 
 # Crossover pipeline settings
-psh.breed.xover.source.0				= org.ecj.psh.select.TrivialGeographySelection
-psh.breed.xover.source.1				= same
-psh.breed.xover.ns.0					= org.ecj.psh.UnbiasedNodeSelector
-psh.breed.xover.ns.1					= same
-psh.breed.xover.toss					= true
+psh.breed.psh-xover.source.0			= org.ecj.psh.select.TrivialGeographySelection
+psh.breed.psh-xover.source.1			= same
+psh.breed.psh-xover.toss				= true
 
-# Flat crossover pipeline settings
-psh.breed.flat-xover.source.0			= org.ecj.psh.select.TrivialGeographySelection
-psh.breed.flat-xover.source.1			= same
-psh.breed.flat-xover.type				= one-point 
-psh.breed.flat-xover.toss				= true
+# Crossover pipeline settings
+psh.breed.one-point-xover.source.0		= org.ecj.psh.select.TrivialGeographySelection
+psh.breed.one-point-xover.source.1		= same
+psh.breed.one-point-xover.toss			= true
+
+# Crossover pipeline settings
+psh.breed.two-point-xover.source.0		= org.ecj.psh.select.TrivialGeographySelection
+psh.breed.two-point-xover.source.1		= same
+psh.breed.two-point-xover.toss			= true
 
 # Simplification pipeline settings
 psh.breed.simplify.source.0				= org.ecj.psh.select.TrivialGeographySelection
@@ -113,7 +115,7 @@ psh.breed.simplify.flatten-prob			= 0.20
 #pop.subpop.0.species.pipe.generate-max		= false
 
 # Crossover pipeline
-#pop.subpop.0.species.pipe.source.0			= org.ecj.psh.breed.CrossoverPipeline
+#pop.subpop.0.species.pipe.source.0			= org.ecj.psh.breed.PshCrossover
 #pop.subpop.0.species.pipe.source.0.prob		= 0.70
 
 # Mutation pipeline

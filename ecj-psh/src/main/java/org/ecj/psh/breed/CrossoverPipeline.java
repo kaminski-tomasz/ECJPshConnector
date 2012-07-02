@@ -1,50 +1,39 @@
 package org.ecj.psh.breed;
 
-import org.ecj.psh.PshEvaluator;
 import org.ecj.psh.PshIndividual;
-import org.ecj.psh.PshNodeSelector;
-import org.ecj.psh.PshProblem;
-import org.spiderland.Psh.Interpreter;
 
 import ec.BreedingPipeline;
 import ec.EvolutionState;
 import ec.Individual;
-import ec.gp.GPIndividual;
-import ec.gp.GPNodeSelector;
 import ec.util.Parameter;
-import ec.vector.VectorIndividual;
 
 /**
- * Crossover pipeline reproduction based on Psh implementation
+ * Abstract crossover pipeline for Push programs.
  * 
- * @author Tomasz Kamiñski
+ * @author Tomasz Kamiński
  * 
  */
-public class CrossoverPipeline extends PshBreedingPipeline {
+public abstract class CrossoverPipeline extends PshBreedingPipeline {
 
-	public static final String P_CROSSOVER = "xover";
 	public static final String P_TOSS = "toss";
+	public static final String P_HOMOLOGOUS = "homologous";
+	public static final String P_TRIES = "tries";
 	public static final int NUM_SOURCES = 2;
-
+		
 	/** Should the pipeline discard the second parent after crossing over? */
 	public boolean tossSecondParent;
 
-	/** How the pipeline selects a node from individual 1 */
-	public PshNodeSelector nodeSelector1;
-
-	/** How the pipeline selects a node from individual 2 */
-	public PshNodeSelector nodeSelector2;
-
 	/** Temporary holding place for parents */
 	PshIndividual parents[];
+	
+	/** Is it a homologous operator */
+	public boolean homologous;
 
+	/** Number of tries while finding the cutpoints before giving up */
+	public int tries;
+	
 	public CrossoverPipeline() {
 		parents = new PshIndividual[2];
-	}
-
-	@Override
-	public Parameter defaultBase() {
-		return PshBreedDefaults.base().push(P_CROSSOVER);
 	}
 
 	@Override
@@ -55,41 +44,26 @@ public class CrossoverPipeline extends PshBreedingPipeline {
 	@Override
 	public Object clone() {
 		CrossoverPipeline c = (CrossoverPipeline) (super.clone());
-		// deep-cloned stuff
-		c.nodeSelector1 = (PshNodeSelector) (nodeSelector1.clone());
-		c.nodeSelector2 = (PshNodeSelector) (nodeSelector2.clone());
 		c.parents = (PshIndividual[]) parents.clone();
 		return c;
 	}
 
+	@Override
 	public void setup(final EvolutionState state, final Parameter base) {
 		super.setup(state, base);
-
 		Parameter def = defaultBase();
-		Parameter p = base.push(P_NODESELECTOR).push("0");
-		Parameter d = def.push(P_NODESELECTOR).push("0");
-
-		nodeSelector1 = (PshNodeSelector) (state.parameters
-				.getInstanceForParameter(p, d, PshNodeSelector.class));
-		nodeSelector1.setup(state, p);
-
-		p = base.push(P_NODESELECTOR).push("1");
-		d = def.push(P_NODESELECTOR).push("1");
-
-		if (state.parameters.exists(p, d)
-				&& state.parameters.getString(p, d).equals(V_SAME))
-			// can't just copy it this time; the selectors
-			// can use internal caches. So we have to clone it no matter what
-			nodeSelector2 = (PshNodeSelector) (nodeSelector1.clone());
-		else {
-			nodeSelector2 = (PshNodeSelector) (state.parameters
-					.getInstanceForParameter(p, d, PshNodeSelector.class));
-			nodeSelector2.setup(state, p);
-		}
 
 		// should we toss second parent?
 		tossSecondParent = state.parameters.getBoolean(base.push(P_TOSS),
 				def.push(P_TOSS), true);
+		
+		// is it a homologous operator
+		homologous = state.parameters.getBoolean(base.push(P_HOMOLOGOUS),
+				def.push(P_HOMOLOGOUS), false);
+		
+		// tries = 0 means that we're trying to find the cutpoints in the infinity loop
+		tries = state.parameters.getIntWithDefault(base.push(P_TRIES),
+				def.push(P_TRIES), 0);
 	}
 
 	/**
@@ -116,9 +90,6 @@ public class CrossoverPipeline extends PshBreedingPipeline {
 		if (!state.random[thread].nextBoolean(likelihood))
 			return reproduce(n, start, subpopulation, inds, state, thread, true);
 
-		int maxPointsInProgram = ((PshEvaluator) state.evaluator).interpreter[thread]
-				.getMaxPointsInProgram();
-
 		// keep on going until we're filled up
 		for (int q = start; q < n + start; /* no increment */) {
 			// grab two individuals from our sources
@@ -143,37 +114,12 @@ public class CrossoverPipeline extends PshBreedingPipeline {
 					parents[1] = (PshIndividual) (parents[1].clone());
 				}
 			}
+
+			boolean breedSecondParent = n - (q - start) >= 2
+					&& !tossSecondParent;
+
+			crossover(state, thread, breedSecondParent);
 			
-			// prepare the nodeselectors
-			nodeSelector1.reset();
-			nodeSelector2.reset();
-
-			// crossover by swap subtrees
-			int index0 = nodeSelector1.pickNode(state, subpopulation, thread,
-					parents[0]);
-			int index1 = nodeSelector2.pickNode(state, subpopulation, thread,
-					parents[1]);
-
-			Object subtree0 = parents[0].program.Subtree(index0);
-			Object subtree1 = parents[1].program.Subtree(index1);
-
-			int subtreeDiff = parents[0].program.SubtreeSize(index0)
-					- parents[1].program.SubtreeSize(index1);
-
-			// crossover first parent
-			if (parents[0].program.programsize() - subtreeDiff <= maxPointsInProgram) {
-				parents[0].program.ReplaceSubtree(index0, subtree1);
-				parents[0].evaluated = false;
-			}
-
-			if (n - (q - start) >= 2 && !tossSecondParent) {
-				// crossover second parent
-				if (parents[1].program.programsize() + subtreeDiff <= maxPointsInProgram) {
-					parents[1].program.ReplaceSubtree(index1, subtree0);
-					parents[1].evaluated = false;
-				}
-			}
-
 			// add 'em to the population
 			inds[q++] = parents[0];
 			if (q < n + start && !tossSecondParent) {
@@ -183,4 +129,12 @@ public class CrossoverPipeline extends PshBreedingPipeline {
 		return n;
 	}
 
+	/**
+	 * Crossover parents
+	 * @param state
+	 * @param thread
+	 * @param breedSecondParent should we breed second parent
+	 */
+	abstract void crossover(EvolutionState state, int thread, boolean breedSecondParent);
+	
 }
