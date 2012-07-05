@@ -76,35 +76,35 @@ psh.interpreter.random-float-res		= 0.01
 ####### Specifying default breeding pipelines parameters
 
 # Tournament selection settings
-# select.tournament.size					= 7
+select.tournament.size					= 7
 psh.select.trivial-geography.size		= 7
 psh.select.trivial-geography.radius		= 0
 
 # Reproduction pipeline settings
-breed.reproduce.source.0 				= org.ecj.psh.select.TrivialGeographySelection
+breed.reproduce.source.0 				= ec.select.TournamentSelection
  
 # Mutation pipeline settings
-psh.breed.mutate.source.0				= org.ecj.psh.select.TrivialGeographySelection
+psh.breed.mutate.source.0				= ec.select.TournamentSelection
 psh.breed.mutate.use-fair				= true
 psh.breed.mutate.fair-mutation-range	= 0.30
 
 # Crossover pipeline settings
-psh.breed.psh-xover.source.0			= org.ecj.psh.select.TrivialGeographySelection
+psh.breed.psh-xover.source.0			= ec.select.TournamentSelection
 psh.breed.psh-xover.source.1			= same
 psh.breed.psh-xover.toss				= true
 
 # Crossover pipeline settings
-psh.breed.one-point-xover.source.0		= org.ecj.psh.select.TrivialGeographySelection
+psh.breed.one-point-xover.source.0		= ec.select.TournamentSelection
 psh.breed.one-point-xover.source.1		= same
 psh.breed.one-point-xover.toss			= true
 
 # Crossover pipeline settings
-psh.breed.two-point-xover.source.0		= org.ecj.psh.select.TrivialGeographySelection
+psh.breed.two-point-xover.source.0		= ec.select.TournamentSelection
 psh.breed.two-point-xover.source.1		= same
 psh.breed.two-point-xover.toss			= true
 
 # Simplification pipeline settings
-psh.breed.simplify.source.0				= org.ecj.psh.select.TrivialGeographySelection
+psh.breed.simplify.source.0				= ec.select.TournamentSelection
 psh.breed.simplify.steps				= 20
 psh.breed.simplify.flatten-prob			= 0.20
 

@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.ecj.psh.PshDefaults;
 
@@ -62,11 +64,19 @@ public class Interpreter implements Prototype {
 
 	public static final String P_GENERATEFLAT = "generate-flat";
 
+	public enum StackType {
+		INT_STACK, FLOAT_STACK, BOOL_STACK, CODE_STACK, NAME_STACK, EXEC_STACK, INPUT_STACK
+	}
+	
 	// Random code generator
 	protected MersenneTwisterFast _RNG;
 
 	protected HashMap<String, Instruction> _instructions = new HashMap<String, Instruction>();
 
+	// References to stack instructions. This is needed in order to update stack references
+	// in these instructions
+	protected Map<StackType, List<Instruction>> _stackInstructions = new HashMap<StackType, List<Instruction>>();
+	
 	// All generators
 	protected HashMap<String, AtomGenerator> _generators = new HashMap<String, AtomGenerator>();
 	protected ArrayList<AtomGenerator> _randomGenerators = new ArrayList<AtomGenerator>();
@@ -281,10 +291,10 @@ public class Interpreter implements Prototype {
 		DefineInstruction("code.fromfloat", new CodeFromFloat());
 		DefineInstruction("code.noop", new ExecNoop());
 
-		DefineInstruction("exec.k", new ExecK(_execStack));
-		DefineInstruction("exec.s", new ExecS(_execStack,
-				getMaxPointsInProgram()));
-		DefineInstruction("exec.y", new ExecY(_execStack));
+		DefineInstruction("exec.k", AddStackInstruction(new ExecK(_execStack), StackType.EXEC_STACK));
+		DefineInstruction("exec.s", AddStackInstruction(new ExecS(_execStack,
+				getMaxPointsInProgram()), StackType.EXEC_STACK));
+		DefineInstruction("exec.y", AddStackInstruction(new ExecY(_execStack),StackType.EXEC_STACK));
 		DefineInstruction("exec.noop", new ExecNoop());
 
 		DefineInstruction("exec.do*times", new ExecDoTimes(this));
@@ -293,29 +303,29 @@ public class Interpreter implements Prototype {
 		DefineInstruction("code.do*count", new CodeDoCount(this));
 		DefineInstruction("exec.do*range", new ExecDoRange(this));
 		DefineInstruction("code.do*range", new CodeDoRange(this));
-		DefineInstruction("code.=", new ObjectEquals(_codeStack));
-		DefineInstruction("exec.=", new ObjectEquals(_execStack));
-		DefineInstruction("code.if", new If(_codeStack));
-		DefineInstruction("exec.if", new If(_execStack));
+		DefineInstruction("code.=", AddStackInstruction(new ObjectEquals(_codeStack), StackType.CODE_STACK));
+		DefineInstruction("exec.=", AddStackInstruction(new ObjectEquals(_execStack), StackType.EXEC_STACK));
+		DefineInstruction("code.if", AddStackInstruction(new If(_codeStack), StackType.CODE_STACK));
+		DefineInstruction("exec.if", AddStackInstruction(new If(_execStack), StackType.EXEC_STACK));
 		DefineInstruction("code.rand",
-				new RandomPushCode(_codeStack, this._RNG));
+				AddStackInstruction(new RandomPushCode(_codeStack, this._RNG), StackType.CODE_STACK));
 		DefineInstruction("exec.rand",
-				new RandomPushCode(_execStack, this._RNG));
+				AddStackInstruction(new RandomPushCode(_execStack, this._RNG), StackType.EXEC_STACK));
 
 		DefineInstruction("true", new BooleanConstant(true));
 		DefineInstruction("false", new BooleanConstant(false));
 
-		DefineInstruction("input.index", new InputIndex(_inputStack));
-		DefineInstruction("input.inall", new InputInAll(_inputStack));
-		DefineInstruction("input.inallrev", new InputInRev(_inputStack));
-		DefineInstruction("input.stackdepth", new Depth(_inputStack));
+		DefineInstruction("input.index", AddStackInstruction(new InputIndex(_inputStack), StackType.INPUT_STACK));
+		DefineInstruction("input.inall", AddStackInstruction(new InputInAll(_inputStack), StackType.INPUT_STACK));
+		DefineInstruction("input.inallrev", AddStackInstruction(new InputInRev(_inputStack), StackType.INPUT_STACK));
+		DefineInstruction("input.stackdepth", AddStackInstruction(new Depth(_inputStack), StackType.INPUT_STACK));
 
-		DefineStackInstructions("integer", _intStack);
-		DefineStackInstructions("float", _floatStack);
-		DefineStackInstructions("boolean", _boolStack);
-		DefineStackInstructions("name", _nameStack);
-		DefineStackInstructions("code", _codeStack);
-		DefineStackInstructions("exec", _execStack);
+		DefineStackInstructions("integer", _intStack, StackType.INT_STACK);
+		DefineStackInstructions("float", _floatStack, StackType.FLOAT_STACK);
+		DefineStackInstructions("boolean", _boolStack, StackType.BOOL_STACK);
+		DefineStackInstructions("name", _nameStack, StackType.NAME_STACK);
+		DefineStackInstructions("code", _codeStack, StackType.CODE_STACK);
+		DefineStackInstructions("exec", _execStack, StackType.EXEC_STACK);
 
 		DefineInstruction("frame.push", new PushFrame());
 		DefineInstruction("frame.pop", new PopFrame());
@@ -441,23 +451,73 @@ public class Interpreter implements Prototype {
 		_randomGenerators.add(iag);
 	}
 
+	protected Instruction AddStackInstruction(Instruction instr, StackType stackType) {
+		if (! _stackInstructions.containsKey(stackType)) {
+			_stackInstructions.put(stackType, new ArrayList<Instruction>());
+		}
+		_stackInstructions.get(stackType).add(instr);
+		return instr;
+	}
+	
 	protected void DefineInstruction(String inName, Instruction inInstruction) {
 		_instructions.put(inName, inInstruction);
 		_generators.put(inName, new InstructionAtomGenerator(inName));
 	}
 
-	protected void DefineStackInstructions(String inTypeName, Stack inStack) {
-		DefineInstruction(inTypeName + ".pop", new Pop(inStack));
-		DefineInstruction(inTypeName + ".swap", new Swap(inStack));
-		DefineInstruction(inTypeName + ".rot", new Rot(inStack));
-		DefineInstruction(inTypeName + ".flush", new Flush(inStack));
-		DefineInstruction(inTypeName + ".dup", new Dup(inStack));
-		DefineInstruction(inTypeName + ".stackdepth", new Depth(inStack));
-		DefineInstruction(inTypeName + ".shove", new Shove(inStack));
-		DefineInstruction(inTypeName + ".yank", new Yank(inStack));
-		DefineInstruction(inTypeName + ".yankdup", new YankDup(inStack));
+	protected void DefineStackInstructions(String inTypeName, Stack inStack, StackType stackType) {
+		DefineInstruction(inTypeName + ".pop", AddStackInstruction(new Pop(inStack), stackType));
+		DefineInstruction(inTypeName + ".swap", AddStackInstruction(new Swap(inStack), stackType));
+		DefineInstruction(inTypeName + ".rot", AddStackInstruction(new Rot(inStack), stackType));
+		DefineInstruction(inTypeName + ".flush", AddStackInstruction(new Flush(inStack), stackType));
+		DefineInstruction(inTypeName + ".dup", AddStackInstruction(new Dup(inStack), stackType));
+		DefineInstruction(inTypeName + ".stackdepth", AddStackInstruction(new Depth(inStack), stackType));
+		DefineInstruction(inTypeName + ".shove", AddStackInstruction(new Shove(inStack), stackType));
+		DefineInstruction(inTypeName + ".yank", AddStackInstruction(new Yank(inStack), stackType));
+		DefineInstruction(inTypeName + ".yankdup", AddStackInstruction(new YankDup(inStack), stackType));
 	}
 
+	protected void UpdateStackInstructions(StackType stackType) {
+		Stack stack = null;
+		switch (stackType) {
+		case INT_STACK:		stack = intStack();	break;
+		case FLOAT_STACK:	stack = floatStack(); break;
+		case BOOL_STACK:	stack = boolStack(); break;
+		case CODE_STACK:	stack = codeStack(); break;
+		case NAME_STACK:	stack = nameStack(); break;
+		case EXEC_STACK:	stack = execStack(); break;
+		case INPUT_STACK:	stack = inputStack();
+		}
+		for (Instruction instr : _stackInstructions.get(stackType)) {
+			if (instr instanceof StackInstruction) {
+				((StackInstruction) instr).setStack(stack);
+			} else if (instr instanceof ObjectStackInstruction) {
+				((ObjectStackInstruction) instr)
+						.setStack((ObjectStack) stack);
+			}
+		}
+	}
+	
+	protected void UpdateStackInstructions() {
+		for (StackType stackType :_stackInstructions.keySet()) {
+			UpdateStackInstructions(stackType);
+		}
+	}
+	
+	protected void printStackInstructions() {
+		for (Entry<StackType, List<Instruction>> entry : _stackInstructions
+				.entrySet()) {
+			System.out.println("=========== "+entry.getKey());
+			for (Instruction instr : entry.getValue()) {
+				for (Entry<String, Instruction> instrEntry : _instructions.entrySet()) {
+					if (instr.equals(instrEntry.getValue())) {
+						System.out.println(instrEntry.getKey());
+					}
+				}
+			}
+		}
+	}
+	
+	
 	/**
 	 * Sets the parameters for the ERCs.
 	 * 
@@ -670,6 +730,8 @@ public class Interpreter implements Prototype {
 		_boolStack = (booleanStack) _boolFrameStack.top();
 		_codeStack = (ObjectStack) _codeFrameStack.top();
 		_nameStack = (ObjectStack) _nameFrameStack.top();
+		
+		UpdateStackInstructions();
 	}
 
 	public void PushStacks() {

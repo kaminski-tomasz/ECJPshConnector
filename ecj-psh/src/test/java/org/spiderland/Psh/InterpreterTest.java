@@ -16,6 +16,12 @@ public class InterpreterTest {
 		interpreter = new Interpreter();
 		interpreter.Initialize(new MersenneTwisterFast());
 		interpreter.SetInstructions(new Program("( registered.float input.makeinputs1 )"));
+//		System.out.println(interpreter.GetRegisteredInstructionsString());
+	}
+
+//	@Test
+	public void interpreter_test_print_stack_instructions() {
+		interpreter.printStackInstructions();
 	}
 	
 	@Test
@@ -42,10 +48,10 @@ public class InterpreterTest {
 		assertEquals(interpreter.floatStack(), expectedFloatStack);
 		
 		interpreter.PushStacks();
+		
 		interpreter.Execute(p1);
-		// FIXME fix bugs in Interpreter class
-//		assertEquals(interpreter.intStack(), expectedIntStack);
-//		assertEquals(interpreter.floatStack(), expectedFloatStack);
+		assertEquals(interpreter.intStack(), expectedIntStack);
+		assertEquals(interpreter.floatStack(), expectedFloatStack);
 				
 	}
 	

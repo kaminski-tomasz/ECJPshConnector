@@ -35,6 +35,10 @@ abstract class StackInstruction extends Instruction {
 	StackInstruction(Stack inStack) {
 		_stack = inStack;
 	}
+	
+	public void setStack(Stack _inStack) {
+		this._stack = _inStack;
+	}
 }
 
 /**
@@ -49,6 +53,10 @@ abstract class ObjectStackInstruction extends Instruction {
 
 	ObjectStackInstruction(ObjectStack inStack) {
 		_stack = inStack;
+	}
+	
+	public void setStack(ObjectStack _inStack) {
+		this._stack = _inStack;
 	}
 }
 
