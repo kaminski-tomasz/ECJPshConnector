@@ -31,6 +31,17 @@ abstract class Stack implements Serializable {
 		_size = 0;
 		resize(8);
 	}
+	
+	@Override
+	public Stack clone() {
+		try {
+			Stack stack = (Stack) super.clone();
+			return stack;
+		} catch (CloneNotSupportedException e) {
+			// never happens
+			throw new InternalError();
+		}
+	}
 
 	abstract void resize(int inSize);
 

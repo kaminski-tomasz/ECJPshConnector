@@ -40,6 +40,13 @@ public class ObjectStack extends Stack {
 
 		return ((ObjectStack) inOther).comparestack(_stack, _size);
 	}
+	
+	@Override
+	public ObjectStack clone() {
+		ObjectStack stack = (ObjectStack)super.clone();
+		stack._stack = this._stack.clone();
+		return stack;
+	}
 
 	boolean comparestack(Object inOther[], int inOtherSize) {
 		if (inOtherSize != _size)
