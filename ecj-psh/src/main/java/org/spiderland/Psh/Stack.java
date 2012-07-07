@@ -21,7 +21,7 @@ import java.io.Serializable;
 /**
  * Abstract class for implementing stacks.
  */
-abstract class Stack implements Serializable {
+abstract class Stack implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	protected int _size;

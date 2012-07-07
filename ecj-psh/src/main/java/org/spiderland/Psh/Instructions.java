@@ -1285,7 +1285,7 @@ class CodeDoTimes extends ObjectStackInstruction {
 
 				if (bodyObj instanceof Program) {
 					// insert integer.pop in front of program
-					((Program) bodyObj).shove("integer.pop", ((Program) bodyObj)._size);
+					((Program) bodyObj).shove("integer.pop", ((ObjectStack) bodyObj)._size);
 				} else {
 					// create a new program with integer.pop in front of
 					// the popped object
@@ -1463,7 +1463,7 @@ class ExecDoTimes extends ObjectStackInstruction {
 
 				if (bodyObj instanceof Program) {
 					// insert integer.pop in front of program
-					((Program) bodyObj).shove("integer.pop", ((Program) bodyObj)._size);
+					((Program) bodyObj).shove("integer.pop", ((ObjectStack) bodyObj)._size);
 				} else {
 					// create a new program with integer.pop in front of
 					// the popped object

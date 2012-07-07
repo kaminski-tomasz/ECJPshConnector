@@ -65,6 +65,7 @@ public class GenericStack<T> extends Stack {
 		@SuppressWarnings("unchecked")
 		GenericStack<T> stack = (GenericStack<T>)super.clone();
 		stack._stack = this._stack.clone();
+		// no deep clone here
 		return stack;
 	}
 

@@ -1,6 +1,7 @@
 package org.spiderland.Psh;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,5 +56,55 @@ public class InterpreterTest {
 				
 	}
 	
+	@Test
+	public void some_test() throws Exception {
+		
+		Program p1 = new Program("( 1 2 integer.+ 3 integer.* )");
+		ObjectStack p2 = new Program("( 3.0 2.0 float./ )");
+		
+		System.out.println(p1);
+				
+		Interpreter interp = new Interpreter();
+		interp.Initialize(new MersenneTwisterFast(1234));
+		interp.SetInstructions(new Program("( integer.+ integer.* integer.- float.* float./ )"));
+		interp._maxPointsInProgram = 50;
+		interp._maxRandomCodeSize = 30;
+		interp._maxRandomInt = 10;
+		interp._minRandomInt = -10;
+		interp._maxRandomFloat = 10;
+		interp._minRandomFloat = -10;
+		
+		for (int i = 0; i < 3; i++)		
+		interp.ExecuteInstruction(p1.peek(i));
+		
+		System.out.println(interp);
+		
+		
+		intStack semantic = interp.intStack().clone();
+		System.out.println(semantic);
+		
+		interp._intStack = semantic.clone();
+		assertNotSame(semantic, interp._floatStack);
+		interp.ExecuteInstruction((Integer)123);
+		interp.ExecuteInstruction(new IntegerAdd());
+		System.out.println(interp);
+		
+
+		interp._intStack = semantic.clone();
+		interp._codeStack.push(p1);
+		interp.ExecuteInstruction((Integer)123);
+		interp.ExecuteInstruction(new IntegerAdd());
+		System.out.println(interp);
+		
+		for (int i = 0; i< interp._codeStack.size(); i++) {
+			System.out.print(" "+interp._codeStack.peek(i));
+		}
+		System.out.println(interp._codeStack.top());
+
+//		interp._intStack = semantic.clone();
+//		Program wstawka = interp.RandomCode(15);
+//		interp.ExecuteInstruction(wstawka);
+//		System.out.println(interp);
+	}
 	
 }

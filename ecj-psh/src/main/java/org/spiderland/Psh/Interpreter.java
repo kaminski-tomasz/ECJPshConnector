@@ -108,9 +108,9 @@ public class Interpreter implements Prototype {
 	protected int _totalStepsTaken;
 	protected long _evaluationExecutions = 0;
 
-	private int _maxRandomCodeSize;
-	private int _executionLimit;
-	private int _maxPointsInProgram;
+	protected int _maxRandomCodeSize;
+	protected int _executionLimit;
+	protected int _maxPointsInProgram;
 
 	protected boolean _useFrames;
 
@@ -297,12 +297,12 @@ public class Interpreter implements Prototype {
 		DefineInstruction("exec.y", AddStackInstruction(new ExecY(_execStack),StackType.EXEC_STACK));
 		DefineInstruction("exec.noop", new ExecNoop());
 
-		DefineInstruction("exec.do*times", new ExecDoTimes(this));
-		DefineInstruction("code.do*times", new CodeDoTimes(this));
-		DefineInstruction("exec.do*count", new ExecDoCount(this));
-		DefineInstruction("code.do*count", new CodeDoCount(this));
-		DefineInstruction("exec.do*range", new ExecDoRange(this));
-		DefineInstruction("code.do*range", new CodeDoRange(this));
+		DefineInstruction("exec.do*times", AddStackInstruction(new ExecDoTimes(this), StackType.EXEC_STACK));
+		DefineInstruction("code.do*times", AddStackInstruction(new CodeDoTimes(this), StackType.CODE_STACK));
+		DefineInstruction("exec.do*count", AddStackInstruction(new ExecDoCount(this), StackType.EXEC_STACK));
+		DefineInstruction("code.do*count", AddStackInstruction(new CodeDoCount(this), StackType.CODE_STACK));
+		DefineInstruction("exec.do*range", AddStackInstruction(new ExecDoRange(this), StackType.EXEC_STACK));
+		DefineInstruction("code.do*range", AddStackInstruction(new CodeDoRange(this), StackType.CODE_STACK));
 		DefineInstruction("code.=", AddStackInstruction(new ObjectEquals(_codeStack), StackType.CODE_STACK));
 		DefineInstruction("exec.=", AddStackInstruction(new ObjectEquals(_execStack), StackType.EXEC_STACK));
 		DefineInstruction("code.if", AddStackInstruction(new If(_codeStack), StackType.CODE_STACK));
