@@ -45,6 +45,7 @@ pop.subpop.0.duplicate-retries	= 0
 
 eval						= org.ecj.psh.PshEvaluator
 eval.interpreter			= org.spiderland.Psh.Interpreter
+
 pop.subpop.0.species		= org.ecj.psh.PshSpecies
 pop.subpop.0.species.ind	= org.ecj.psh.PshIndividual
 
@@ -77,8 +78,6 @@ psh.interpreter.random-float-res		= 0.01
 
 # Tournament selection settings
 select.tournament.size					= 7
-psh.select.trivial-geography.size		= 7
-psh.select.trivial-geography.radius		= 0
 
 # Reproduction pipeline settings
 breed.reproduce.source.0 				= ec.select.TournamentSelection

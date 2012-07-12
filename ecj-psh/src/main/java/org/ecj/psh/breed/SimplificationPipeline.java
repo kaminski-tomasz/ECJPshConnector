@@ -3,12 +3,10 @@ package org.ecj.psh.breed;
 import org.ecj.psh.PshIndividual;
 import org.ecj.psh.PshProblem;
 import org.ecj.psh.util.Simplifier;
-import org.spiderland.Psh.Program;
 
 import ec.BreedingPipeline;
 import ec.EvolutionState;
 import ec.Individual;
-import ec.gp.koza.KozaFitness;
 import ec.util.Parameter;
 
 /**

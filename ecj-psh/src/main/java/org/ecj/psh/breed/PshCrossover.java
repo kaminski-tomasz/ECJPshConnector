@@ -14,11 +14,6 @@ public class PshCrossover extends CrossoverPipeline {
 	public Parameter defaultBase() {
 		return PshBreedDefaults.base().push(P_PSHXOVER);
 	}
-	
-	@Override
-	public void setup(final EvolutionState state, final Parameter base) {
-		super.setup(state, base);
-	}
 
 	@Override
 	void crossover(EvolutionState state, int thread, boolean breedSecondParent) {
@@ -28,7 +23,7 @@ public class PshCrossover extends CrossoverPipeline {
 		int parent1size = parents[0].program.programsize();
 		int parent2size = parents[1].program.programsize();
 
-		if (parent1size < 2 || parent2size < 2)
+		if (parent1size < 1 || parent2size < 1)
 			return;
 		
 		// crossover by swap subtrees
@@ -39,7 +34,7 @@ public class PshCrossover extends CrossoverPipeline {
 		Object subtree2 = parents[1].program.Subtree(index2);
 
 		int subtree1size = parents[0].program.SubtreeSize(index1);
-		int subtree2size = parents[1].program.SubtreeSize(index1);
+		int subtree2size = parents[1].program.SubtreeSize(index2);
 		
 		// crossover first parent
 		if (parent1size - subtree1size + subtree2size <= maxPointsInProgram) {

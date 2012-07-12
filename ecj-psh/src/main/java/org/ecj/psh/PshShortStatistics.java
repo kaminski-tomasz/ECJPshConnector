@@ -59,14 +59,14 @@ public class PshShortStatistics extends SimpleShortStatistics {
 	
 	 /** Logs the best individual of the run. */
 	public void finalStatistics(final EvolutionState state, final int result) {
-		for (int x = 0; x < state.population.subpops.length; x++) {
-			PshIndividual ind = (PshIndividual) best_of_run[x];
-			KozaFitness fitness = (KozaFitness) ind.fitness;
-			state.output.println(
-					"" + fitness.isIdealFitness() + " " + ind.size() + " "
-							+ fitness.standardizedFitness() + " "
-							+ fitness.adjustedFitness(), statisticslog);
-		}
+//		for (int x = 0; x < state.population.subpops.length; x++) {
+//			PshIndividual ind = (PshIndividual) best_of_run[x];
+//			KozaFitness fitness = (KozaFitness) ind.fitness;
+//			state.output.println(
+//					"" + fitness.isIdealFitness() + " " + ind.size() + " "
+//							+ fitness.standardizedFitness() + " "
+//							+ fitness.adjustedFitness(), statisticslog);
+//		}
 	}
 
 }

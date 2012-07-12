@@ -38,8 +38,7 @@ psh.interpreter.instruction-list		= instructions.txt
 ############ Genetic operators settings
 
 # Tournament selection settings
-psh.select.trivial-geography.size		= 7
-psh.select.trivial-geography.radius		= 10
+select.tournament.size					= 7
 
 # Mutation pipeline settings
 psh.breed.mutate.use-fair				= true
@@ -70,7 +69,7 @@ pop.subpop.0.species.pipe.source.2.prob	= 0.05
 
 # Reproduction pipeline
 pop.subpop.0.species.pipe.source.3		= ec.breed.ReproductionPipeline
-pop.subpop.0.species.pipe.source.3.prob	= 0.1
+pop.subpop.0.species.pipe.source.3.prob	= 0.10
 
 
 #print-params = true

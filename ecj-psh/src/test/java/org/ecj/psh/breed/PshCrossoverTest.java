@@ -25,8 +25,8 @@ public class PshCrossoverTest extends CrossoverTest {
 	public void _PSHX_test_too_short_programs() throws Exception {
 		System.out.println("*** PSHX too short programs:");
 		do_crossover_test(
-			new String[]{ "( A1 )", "( B1 B2 )" },
-			new String[]{ "( A1 )", "( B1 B2 )" },
+			new String[]{ "(  )", "( B1 B2 )" },
+			new String[]{ "(  )", "( B1 B2 )" },
 			true
 		);
 		do_crossover_test(
@@ -39,6 +39,14 @@ public class PshCrossoverTest extends CrossoverTest {
 	@Test
 	public void _PSHX_some_normal_cases() throws Exception {
 		System.out.println("*** PSHX some normal cases:");
+		// cutpoints: 1, 1
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0, 2 );
+		do_crossover_test(
+			new String[]{ "( A1 )", "( B1 B2 B3 B4 )" },
+			new String[]{ "( B3 )", "( B1 B2 A1 B4 )" },
+			true
+		);
+		
 		// cutpoints: 1, 1
 		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0, 0 );
 		do_crossover_test(
