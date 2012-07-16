@@ -135,6 +135,6 @@ public abstract class CrossoverPipeline extends PshBreedingPipeline {
 	 * @param thread
 	 * @param breedSecondParent should we breed second parent
 	 */
-	abstract void crossover(EvolutionState state, int thread, boolean breedSecondParent);
+	abstract protected void crossover(EvolutionState state, int thread, boolean breedSecondParent);
 	
 }

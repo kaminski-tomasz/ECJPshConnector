@@ -23,7 +23,7 @@ public class OnePointCrossover extends CrossoverPipeline {
 	 *            do we breed second parent?
 	 */
 	@Override
-	void crossover(EvolutionState state, int thread, boolean breedSecondParent) {
+	protected void crossover(EvolutionState state, int thread, boolean breedSecondParent) {
 		int maxPointsInProgram = ((PshEvaluator) state.evaluator).interpreter[thread]
 				.getMaxPointsInProgram();
 

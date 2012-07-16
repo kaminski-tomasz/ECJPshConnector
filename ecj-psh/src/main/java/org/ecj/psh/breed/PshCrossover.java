@@ -16,7 +16,7 @@ public class PshCrossover extends CrossoverPipeline {
 	}
 
 	@Override
-	void crossover(EvolutionState state, int thread, boolean breedSecondParent) {
+	protected void crossover(EvolutionState state, int thread, boolean breedSecondParent) {
 		int maxPointsInProgram = ((PshEvaluator) state.evaluator).interpreter[thread]
 				.getMaxPointsInProgram();
 
