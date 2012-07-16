@@ -32,7 +32,7 @@ public class TwoPointCrossover extends CrossoverPipeline {
 		int parent2size = parents[1].program.size();
 
 		// check if we can crossover
-		if (parent1size <= 1 || parent2size <= 1)
+		if (parent1size <= 0 || parent2size <= 0)
 			return;
 
 		// choose cutpoints
@@ -110,8 +110,8 @@ public class TwoPointCrossover extends CrossoverPipeline {
 	 */
 	public int findCuttingPoints(int parentSize, int[] cutpoints,
 			EvolutionState state, int thread) {
-		cutpoints[0] = state.random[thread].nextInt(parentSize - 1);
-		cutpoints[1] = state.random[thread].nextInt(parentSize - 1);
+		cutpoints[0] = state.random[thread].nextInt(parentSize);
+		cutpoints[1] = state.random[thread].nextInt(parentSize);
 		if (cutpoints[0] > cutpoints[1]) {
 			int temp = cutpoints[0];
 			cutpoints[0] = cutpoints[1];

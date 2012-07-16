@@ -29,13 +29,13 @@ public class OnePointCrossoverTest extends CrossoverTest {
 
 		System.out.println("*** 1PX too short programs:");
 		do_crossover_test(
-			new String[]{ "( A1 )", "( B1 B2 )" },
-			new String[]{ "( A1 )", "( B1 B2 )" },
+			new String[]{ "( )", "( B1 B2 )" },
+			new String[]{ "( )", "( B1 B2 )" },
 			true
 		);
 		do_crossover_test(
-			new String[]{ "( A1 A2 )", "( B1 )" },
-			new String[]{ "( A1 A2)", "( B1 )" },
+			new String[]{ "( A1 A2 )", "( )" },
+			new String[]{ "( A1 A2)", "( )" },
 			true
 		);
 	}
@@ -45,22 +45,39 @@ public class OnePointCrossoverTest extends CrossoverTest {
 		crossover.homologous = false;		
 
 		System.out.println("*** 1PX cutpoints borderline cases:");
-		// cutpoints: 1, 1
+		
+		// cutpoints: 0, 1
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0, 1 );
+		do_crossover_test(
+			new String[]{ "( A1 )", "( B1 B2 )" },
+			new String[]{ "( B2 )", "( B1 A1 )" },
+			true
+		);
+		// cutpoints: 0, 0
 		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0, 0 );
+		do_crossover_test(
+			new String[]{ "( A1 A2 )", "( B1 )" },
+			new String[]{ "( B1 )", "( A1 A2 )" },
+			true
+		);
+		
+		
+		// cutpoints: 1, 1
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 1, 1 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 A4 )", "( B1 B2 B3 B4 )" },
 			new String[]{ "( A1 B2 B3 B4 )", "( B1 A2 A3 A4 )" },
 			true
 		);
 		// cutpoints: 3, 3
-		when(stateRandom[0].nextInt(anyInt())).thenReturn( 2, 2 );
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 3, 3 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 (A4 A5) )", "( B1 B2 B3 B4 )" },
 			new String[]{ "( A1 A2 A3 B4 )", "( B1 B2 B3 (A4 A5) )" },
 			true
 		);
 		// cutpoints: 1, 3
-		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0, 2 );
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 1, 3 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 (A4 A5))", "( B1 B2 B3 B4 )" },
 			new String[]{ "( A1 B4 )", "( B1 B2 B3 A2 A3 (A4 A5) )" },
@@ -75,7 +92,7 @@ public class OnePointCrossoverTest extends CrossoverTest {
 		System.out.println("*** 1PX some normal cases:");
 
 		// cutpoints: 3, 2
-		when(stateRandom[0].nextInt(anyInt())).thenReturn( 2, 1 );
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 3, 2 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 (A4 A5 (1.2 234)) A6 )", "( (B1 B2) B3 123 B4 B5 )" },
 			new String[]{ "( A1 A2 A3 123 B4 B5 )", "( (B1 B2) B3 (A4 A5 (1.2 234)) A6 )" },
@@ -89,13 +106,13 @@ public class OnePointCrossoverTest extends CrossoverTest {
 
 		System.out.println("*** 1PXh too short programs:");
 		do_crossover_test(
-			new String[]{ "( A1 )", "( B1 B2 )" },
-			new String[]{ "( A1 )", "( B1 B2 )" },
+			new String[]{ "( )", "( B1 B2 )" },
+			new String[]{ "(  )", "( B1 B2 )" },
 			true
 		);
 		do_crossover_test(
-			new String[]{ "( A1 A2 )", "( B1 )" },
-			new String[]{ "( A1 A2)", "( B1 )" },
+			new String[]{ "( A1 A2 )", "(  )" },
+			new String[]{ "( A1 A2)", "(  )" },
 			true
 		);
 	}
@@ -105,15 +122,30 @@ public class OnePointCrossoverTest extends CrossoverTest {
 		crossover.homologous = true;		
 
 		System.out.println("*** 1PXh cutpoint borderline cases:");
-		// cutpoint: 1
+		// cutpoint: 0
 		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0 );
+		do_crossover_test(
+			new String[]{ "( A1 )", "( B1 B2 )" },
+			new String[]{ "( B1 B2 )", "( A1 )" },
+			true
+		);
+		// cutpoint: 1
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 1 );
+		do_crossover_test(
+			new String[]{ "( A1 A2 )", "( B1 )" },
+			new String[]{ "( A1 )", "( B1 A2 )" },
+			true
+		);
+		
+		// cutpoint: 1
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 1 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 A4 )", "( B1 B2 B3 B4 )" },
 			new String[]{ "( A1 B2 B3 B4 )", "( B1 A2 A3 A4 )" },
 			true
 		);
 		// cutpoint: 3
-		when(stateRandom[0].nextInt(anyInt())).thenReturn( 2 );
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 3 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 (A4 A5) )", "( B1 B2 B3 B4 )" },
 			new String[]{ "( A1 A2 A3 B4 )", "( B1 B2 B3 (A4 A5) )" },
@@ -128,7 +160,7 @@ public class OnePointCrossoverTest extends CrossoverTest {
 		System.out.println("*** 1PXh some normal cases:");
 
 		// cutpoint: 2
-		when(stateRandom[0].nextInt(anyInt())).thenReturn( 1 );
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 2 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 (A4 A5 (1.2 234)) A6 )", "( (B1 B2) B3 123 B4 B5 )" },
 			new String[]{ "( A1 A2 123 B4 B5 )", "( (B1 B2) B3 A3 (A4 A5 (1.2 234)) A6  )" },
@@ -136,7 +168,7 @@ public class OnePointCrossoverTest extends CrossoverTest {
 		);
 		
 		// cutpoint: 2
-		when(stateRandom[0].nextInt(anyInt())).thenReturn( 1 );
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 2 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 (A4 A5 (1.2 234)) A6 )", "( (B1 B2) B3 123 B4 B5 )" },
 			new String[]{ "( A1 A2 123 B4 B5 )", "( (B1 B2) B3 123 B4 B5 )" },
@@ -155,7 +187,7 @@ public class OnePointCrossoverTest extends CrossoverTest {
 		System.out.println("*** 1PX limited tries cases:");
 
 		// cutpoints: 3, 1
-		when(stateRandom[0].nextInt(anyInt())).thenReturn( 2, 0 );
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 3, 1 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 A4 )", "( B1 B2 B3 B4 )" },
 			new String[]{ "( A1 A2 A3 A4 )", "( B1 B2 B3 B4 )" },
@@ -164,7 +196,7 @@ public class OnePointCrossoverTest extends CrossoverTest {
 		
 		crossover.tries = 2;
 		// cutpoints: 3, 1,  3, 3
-		when(stateRandom[0].nextInt(anyInt())).thenReturn( 2, 0, 2 );
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 3, 1, 3 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 A4 )", "( B1 B2 B3 B4 )" },
 			new String[]{ "( A1 A2 A3 B4 )", "( B1 B2 B3 A4 )" },
@@ -173,7 +205,7 @@ public class OnePointCrossoverTest extends CrossoverTest {
 		
 		crossover.tries = 1;
 		// cutpoints: 1, 3
-		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0, 2 );
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 1, 3 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 A4 )", "( B1 B2 B3 B4 )" },
 			new String[]{ "( A1 A2 A3 A4 )", "( B1 B2 B3 B4 )" },
@@ -182,7 +214,7 @@ public class OnePointCrossoverTest extends CrossoverTest {
 		
 		crossover.tries = 1;
 		// cutpoints: 1, 3
-		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0, 2 );
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 1, 3 );
 		do_crossover_test(
 			new String[]{ "( A1 A2 A3 A4 )", "( B1 B2 B3 B4 )" },
 			new String[]{ "( A1 B4 )", "( B1 B2 B3 B4 )" },

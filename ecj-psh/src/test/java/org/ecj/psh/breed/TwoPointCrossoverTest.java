@@ -38,12 +38,6 @@ public class TwoPointCrossoverTest extends CrossoverTest {
 			new String[]{ "( A1 A2)", "(  )" },
 			true
 		);
-		// cutpoints: (0, 0), (1, 1)
-		do_crossover_test(
-			new String[]{ "( A1 )", "( B1 B2 )" },
-			new String[]{ "( A1 )", "( B1 B2 )" },
-			true
-		);
 	}
 	
 	@Test
@@ -52,6 +46,15 @@ public class TwoPointCrossoverTest extends CrossoverTest {
 
 		System.out.println("*** 2PX cutpoints borderline cases:");
 				
+
+		// cutpoints: (0, 0), (1, 1)
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0, 0, 1, 1 );
+		do_crossover_test(
+			new String[]{ "( A1 )", "( B1 B2 )" },
+			new String[]{ "( B2 )", "( B1 A1 )" },
+			true
+		);
+		
 		// cutpoints: (0, 0), (1, 1)
 		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0, 0, 1, 1 );
 		do_crossover_test(

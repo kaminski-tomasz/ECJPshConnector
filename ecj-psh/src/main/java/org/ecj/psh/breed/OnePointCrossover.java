@@ -31,7 +31,7 @@ public class OnePointCrossover extends CrossoverPipeline {
 		int parent2size = parents[1].program.size();
 
 		// check if we can crossover
-		if (parent1size <= 1 || parent2size <= 1)
+		if (parent1size <= 0 || parent2size <= 0)
 			return;
 
 		// choose cutpoints
@@ -39,10 +39,10 @@ public class OnePointCrossover extends CrossoverPipeline {
 		if (!homologous) {
 			int numOfTries = this.tries;
 			do {
-				cutpoint1 = state.random[thread].nextInt(parent1size - 1) + 1;
+				cutpoint1 = state.random[thread].nextInt(parent1size);
 				do {
 					numOfTries--;
-					cutpoint2 = state.random[thread].nextInt(parent2size - 1) + 1;
+					cutpoint2 = state.random[thread].nextInt(parent2size);
 					child1size = cutpoint1 + parent2size - cutpoint2;
 				} while (numOfTries != 0
 						&& child1size > maxPointsInProgram);
@@ -57,7 +57,7 @@ public class OnePointCrossover extends CrossoverPipeline {
 			}
 		} else {
 			cutpoint1 = cutpoint2 = state.random[thread].nextInt(Math.min(
-					parent1size, parent2size) - 1) + 1;
+					parent1size, parent2size));
 		}
 		Program child1 = new Program(), child2 = new Program();
 		// breed first parent
