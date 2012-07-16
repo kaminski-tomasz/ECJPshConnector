@@ -595,7 +595,8 @@ public class Interpreter implements Prototype {
 	public int Step(int inMaxSteps) {
 		int executed = 0;
 		while (inMaxSteps != 0 && _execStack.size() > 0) {
-			ExecuteInstruction(_execStack.pop());
+			if (ExecuteInstruction(_execStack.pop()) == -1)
+				throw new InternalError("Can't execute instruction");
 			inMaxSteps--;
 			executed++;
 		}
@@ -632,12 +633,16 @@ public class Interpreter implements Prototype {
 			_floatStack.push(((Number) inObject).floatValue());
 			return 0;
 		}
-
+		// We assume that Instruction objects can belong to different
+		// Interpreter instances, so they cannot be executed by other Interpreters.
+		// Moreover, random code generators don't produce such references, so we can 
+		// throw away the following piece of code safely.
+		/*
 		if (inObject instanceof Instruction) {
 			((Instruction) inObject).Execute(this);
 			return 0;
 		}
-
+		 */
 		if (inObject instanceof String) {
 			Instruction i = _instructions.get(inObject);
 
