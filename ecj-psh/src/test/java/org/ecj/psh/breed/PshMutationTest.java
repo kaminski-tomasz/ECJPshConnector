@@ -20,7 +20,7 @@ import ec.util.Output;
 
 public class PshMutationTest {
 
-	protected MutationPipeline mutation;
+	protected PshMutation mutation;
 	
 	protected EvolutionState state;
 	protected Output stateOutput;
@@ -54,7 +54,7 @@ public class PshMutationTest {
         stateEvaluator.interpreter = new Interpreter[1];
         stateEvaluator.interpreter[0] = interpreter;
         
-        mutation = new MutationPipeline();
+        mutation = new PshMutation();
                 
         // safe limit for program length
      	when(interpreter.getMaxPointsInProgram()).thenReturn(50);
@@ -73,7 +73,7 @@ public class PshMutationTest {
 		when(stateRandom[0].nextInt(anyInt())).thenReturn( 3, 1 );
 		when(interpreter.RandomAtom()).thenReturn((Integer)123);
 		
-		mutation.mutate(parent, state, thread);
+		mutation.mutate(parent, state, thread, 0);
 		
 		assertEquals(new Program("( 1 2 3 123 integer.+ integer.* )"), parent.program);
 		
