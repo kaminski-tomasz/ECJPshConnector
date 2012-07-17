@@ -24,7 +24,7 @@ public abstract class CrossoverPipeline extends PshBreedingPipeline {
 	public boolean tossSecondParent;
 
 	/** Temporary holding place for parents */
-	PshIndividual parents[];
+	protected PshIndividual parents[];
 	
 	/** Is it a homologous operator */
 	public boolean homologous;

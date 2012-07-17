@@ -301,6 +301,82 @@ public class Program extends ObjectStack implements Serializable {
 			inOther.push(_stack[n]);
 	}
 
+	/**
+	 * Copies this program to another.
+	 * 
+	 * @param size
+	 *            how many nodes of the root stack should be copied
+	 * @param inOther
+	 *            The program to receive the copy of this program fragment
+	 */
+
+	public void CopyTo(Program inOther, int size) {
+		for (int n = 0; n < size && n < _size; n++)
+			inOther.push(_stack[n]);
+	}
+
+	/**
+	 * Copies this program to another.
+	 * 
+	 * @param start
+	 *            starting position
+	 * @param size
+	 *            how many nodes of the root stack should be copied
+	 * @param inOther
+	 *            The program to receive the copy of this program fragment
+	 */
+
+	public void CopyTo(Program inOther, int start, int size) {
+		for (int n = start; n - start < size && n - start < _size; n++)
+			inOther.push(_stack[n]);
+	}
+
+	/**
+	 * Copies this program to the new one.
+	 * 
+	 * @param inOther
+	 *            The program to receive the copy of this program
+	 */
+
+	public Program Copy() {
+		Program inOther = new Program();
+		this.CopyTo(inOther);
+		return inOther;
+	}
+
+	/**
+	 * Copies this program to the new one.
+	 * 
+	 * @param size
+	 *            how many nodes of the root stack should be copied
+	 * @param inOther
+	 *            The program to receive the copy of this program fragment
+	 */
+
+	public Program Copy(int size) {
+		Program inOther = new Program();
+		this.CopyTo(inOther, size);
+		return inOther;
+	}
+
+	/**
+	 * Copies this program to the new one.
+	 * 
+	 * @param start
+	 *            starting position
+	 * @param size
+	 *            how many nodes of the root stack should be copied
+	 * @param inOther
+	 *            The program to receive the copy of this program fragment
+	 */
+
+	public Program Copy(int start, int size) {
+		Program inOther = new Program();
+		this.CopyTo(inOther, start, size);
+		return inOther;
+	}
+	
+	
 	public String toString() {
 		String result = "(";
 
