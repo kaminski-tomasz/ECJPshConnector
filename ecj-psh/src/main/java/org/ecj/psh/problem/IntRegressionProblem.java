@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
 
-import org.ecj.psh.PshEvaluator;
+import org.ecj.psh.PshEvolutionState;
 import org.ecj.psh.PshIndividual;
 import org.ecj.psh.PshProblem;
 import org.spiderland.Psh.Interpreter;
@@ -116,7 +116,7 @@ public class IntRegressionProblem extends PshProblem {
 			state.output.fatal("This is not PshIndividual instance!");
 		}
 		
-		Interpreter interpreter = ((PshEvaluator) state.evaluator).interpreter[threadnum];
+		Interpreter interpreter = ((PshEvolutionState) state).interpreter[threadnum];
 		Program program = ((PshIndividual) ind).program;
 		
 		double meanError = 0.0f;

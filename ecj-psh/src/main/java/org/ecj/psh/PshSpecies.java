@@ -37,7 +37,7 @@ public class PshSpecies extends Species {
 		PshIndividual newind = ((PshIndividual) (i_prototype)).clone();
 
 		// interpreter
-		Interpreter interpreter = ((PshEvaluator) state.evaluator).interpreter[thread];
+		Interpreter interpreter = ((PshEvolutionState) state).interpreter[thread];
 
 		// Generate random program
 		int randomCodeSize = state.random[thread]

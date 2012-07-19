@@ -1,6 +1,6 @@
 package org.ecj.psh.breed;
 
-import org.ecj.psh.PshEvaluator;
+import org.ecj.psh.PshEvolutionState;
 import org.ecj.psh.PshIndividual;
 import org.spiderland.Psh.Interpreter;
 
@@ -49,7 +49,7 @@ public class PshMutation extends MutationPipeline {
 	protected void mutate(PshIndividual ind, EvolutionState state, int thread,
 			int subpopulation) {
 
-		Interpreter interpreter = ((PshEvaluator) state.evaluator).interpreter[thread];
+		Interpreter interpreter = ((PshEvolutionState) state).interpreter[thread];
 		int maxPointsInProgram = interpreter.getMaxPointsInProgram();
 		int maxRandomCodeSize = interpreter.getMaxRandomCodeSize();
 

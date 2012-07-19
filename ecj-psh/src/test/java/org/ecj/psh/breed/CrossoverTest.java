@@ -6,12 +6,12 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
 import org.ecj.psh.PshEvaluator;
+import org.ecj.psh.PshEvolutionState;
 import org.ecj.psh.PshIndividual;
 import org.junit.Before;
 import org.spiderland.Psh.Interpreter;
 import org.spiderland.Psh.Program;
 
-import ec.EvolutionState;
 import ec.util.MersenneTwisterFast;
 import ec.util.Output;
 
@@ -19,7 +19,7 @@ public abstract class CrossoverTest {
 
 	protected CrossoverPipeline crossover;
 	
-	protected EvolutionState state;
+	protected PshEvolutionState state;
 	protected Output stateOutput;
 	protected MersenneTwisterFast[] stateRandom;
 	protected PshEvaluator stateEvaluator;
@@ -32,7 +32,7 @@ public abstract class CrossoverTest {
 	
         // mock the evolution state because it is too expensive
         // to provide it properly configured
-        state = mock(EvolutionState.class);
+        state = mock(PshEvolutionState.class);
         stateOutput = mock(Output.class);
         stateRandom = new MersenneTwisterFast[1];
         stateRandom[0] = mock(MersenneTwisterFast.class);
@@ -48,8 +48,8 @@ public abstract class CrossoverTest {
         state.random = stateRandom;
         state.evaluator = stateEvaluator;
                 
-        stateEvaluator.interpreter = new Interpreter[1];
-        stateEvaluator.interpreter[0] = interpreter;
+        state.interpreter = new Interpreter[1];
+        state.interpreter[0] = interpreter;
         
 	}
 	

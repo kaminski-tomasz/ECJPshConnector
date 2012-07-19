@@ -1,7 +1,6 @@
 package org.ecj.psh.breed;
 
-import org.ecj.psh.PshEvaluator;
-import org.ecj.psh.breed.PshBreedDefaults;
+import org.ecj.psh.PshEvolutionState;
 
 import ec.EvolutionState;
 import ec.util.Parameter;
@@ -17,7 +16,7 @@ public class PshCrossover extends CrossoverPipeline {
 
 	@Override
 	protected void crossover(EvolutionState state, int thread, boolean breedSecondParent) {
-		int maxPointsInProgram = ((PshEvaluator) state.evaluator).interpreter[thread]
+		int maxPointsInProgram = ((PshEvolutionState) state).interpreter[thread]
 				.getMaxPointsInProgram();
 
 		int parent1size = parents[0].program.programsize();

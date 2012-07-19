@@ -8,13 +8,13 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import org.ecj.psh.PshEvaluator;
+import org.ecj.psh.PshEvolutionState;
 import org.ecj.psh.PshIndividual;
 import org.junit.Before;
 import org.junit.Test;
 import org.spiderland.Psh.Interpreter;
 import org.spiderland.Psh.Program;
 
-import ec.EvolutionState;
 import ec.util.MersenneTwisterFast;
 import ec.util.Output;
 
@@ -22,7 +22,7 @@ public class PshMutationTest {
 
 	protected PshMutation mutation;
 	
-	protected EvolutionState state;
+	protected PshEvolutionState state;
 	protected Output stateOutput;
 	protected MersenneTwisterFast[] stateRandom;
 	protected PshEvaluator stateEvaluator;
@@ -35,7 +35,7 @@ public class PshMutationTest {
 	
         // mock the evolution state because it is too expensive
         // to provide it properly configured
-        state = mock(EvolutionState.class);
+        state = mock(PshEvolutionState.class);
         stateOutput = mock(Output.class);
         stateRandom = new MersenneTwisterFast[1];
         stateRandom[0] = mock(MersenneTwisterFast.class);
@@ -51,8 +51,8 @@ public class PshMutationTest {
         state.random = stateRandom;
         state.evaluator = stateEvaluator;
                 
-        stateEvaluator.interpreter = new Interpreter[1];
-        stateEvaluator.interpreter[0] = interpreter;
+        state.interpreter = new Interpreter[1];
+        state.interpreter[0] = interpreter;
         
         mutation = new PshMutation();
                 
