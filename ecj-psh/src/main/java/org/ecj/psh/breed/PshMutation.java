@@ -78,6 +78,9 @@ public class PshMutation extends MutationPipeline {
 
 		if (newsize + totalsize - oldsize <= maxPointsInProgram) {
 			ind.program.ReplaceSubtree(which, newtree);
+			if (interpreter.isGenerateFlatPrograms()) {
+				ind.program.Flatten(which);
+			}
 			ind.evaluated = false;
 		}
 	}

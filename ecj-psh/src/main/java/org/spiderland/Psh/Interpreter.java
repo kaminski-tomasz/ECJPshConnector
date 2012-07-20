@@ -1044,30 +1044,38 @@ public class Interpreter implements Prototype {
 		this._executionLimit = _executionLimit;
 	}
 
-	abstract class AtomGenerator implements Serializable {
-		private static final long serialVersionUID = 1L;
-
-		abstract Object Generate(Interpreter inInterpreter);
+	public boolean isGenerateFlatPrograms() {
+		return _generateFlatPrograms;
 	}
 
-	private class InstructionAtomGenerator extends AtomGenerator {
+	public void setGenerateFlatPrograms(boolean _generateFlatPrograms) {
+		this._generateFlatPrograms = _generateFlatPrograms;
+	}
+	
+	public abstract class AtomGenerator implements Serializable {
+		private static final long serialVersionUID = 1L;
+
+		public abstract Object Generate(Interpreter inInterpreter);
+	}
+
+	public class InstructionAtomGenerator extends AtomGenerator {
 		private static final long serialVersionUID = 1L;
 
 		String _instruction;
 
-		InstructionAtomGenerator(String inInstructionName) {
+		public InstructionAtomGenerator(String inInstructionName) {
 			_instruction = inInstructionName;
 		}
 
-		Object Generate(Interpreter inInterpreter) {
+		public Object Generate(Interpreter inInterpreter) {
 			return _instruction;
 		}
 	}
 
-	private class FloatAtomGenerator extends AtomGenerator {
+	public class FloatAtomGenerator extends AtomGenerator {
 		private static final long serialVersionUID = 1L;
 
-		Object Generate(Interpreter inInterpreter) {
+		public Object Generate(Interpreter inInterpreter) {
 			float r = inInterpreter._RNG.nextFloat()
 					* (_maxRandomFloat - _minRandomFloat);
 
@@ -1077,10 +1085,10 @@ public class Interpreter implements Prototype {
 		}
 	}
 
-	private class IntAtomGenerator extends AtomGenerator {
+	public class IntAtomGenerator extends AtomGenerator {
 		private static final long serialVersionUID = 1L;
 
-		Object Generate(Interpreter inInterpreter) {
+		public Object Generate(Interpreter inInterpreter) {
 			int r = inInterpreter._RNG.nextInt(_maxRandomInt - _minRandomInt);
 
 			r -= (r % _randomIntResolution);
