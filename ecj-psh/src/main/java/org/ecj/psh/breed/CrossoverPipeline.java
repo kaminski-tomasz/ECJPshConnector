@@ -136,5 +136,12 @@ public abstract class CrossoverPipeline extends PshBreedingPipeline {
 	 * @param breedSecondParent should we breed second parent
 	 */
 	abstract protected void crossover(EvolutionState state, int thread, boolean breedSecondParent);
+
+	public PshIndividual[] getParents() {
+		return parents;
+	}
 	
+	public void setParents(PshIndividual[] parents) {
+		this.parents = parents;
+	}
 }
