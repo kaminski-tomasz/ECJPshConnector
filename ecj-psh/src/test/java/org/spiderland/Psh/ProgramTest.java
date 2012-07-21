@@ -16,11 +16,9 @@
 
 package org.spiderland.Psh;
 
-import junit.framework.*;
-import org.spiderland.Psh.*;
+import junit.framework.TestCase;
 
 public class ProgramTest extends TestCase {
-	@SuppressWarnings("deprecation")
 	public void testEquals() throws Exception {
 		// Equality testing of nested programs 
 
@@ -34,7 +32,6 @@ public class ProgramTest extends TestCase {
 		assertTrue( p.equals( q ) );
 	}
 
-	@SuppressWarnings("deprecation")
 	public void testParse() throws Exception {
 		// Parse a program, and then re-parse its string representation.
 		// They should be equal.
@@ -48,7 +45,6 @@ public class ProgramTest extends TestCase {
 		assertTrue( p.equals( q ) );
 	}
 
-	@SuppressWarnings("deprecation")
 	public void testSubtreeFetch() throws Exception {
 		Program p = new Program();
 		p.Parse( "( 2.0 ( TEST 2 ( 3 ) ) )" );
@@ -56,7 +52,6 @@ public class ProgramTest extends TestCase {
 		assertTrue( true );
 	}
 
-	@SuppressWarnings("deprecation")
 	public void testSubtreeReplace() throws Exception {
 		Program p = new Program();
 		Program q = new Program();
@@ -73,5 +68,99 @@ public class ProgramTest extends TestCase {
 
 		assertTrue( q.equals( p ) );
 	}
+	
+	public void testProgramsize() throws Exception {
+		Program p = new Program();
+		
+		p.Parse( "(  A B C (1 2 3) A (4 5 C (F))  )" );
+		assertEquals(14, p.programsize());
+	}
+	
+	public void testProgramsizeWithStart() throws Exception {
+		Program p = new Program();
+		
+		p.Parse( "(  A B C (1 2 3) A (4 5 C (F))  )" );
+		
+		assertEquals(6, p.size());
+		
+		assertEquals(6, p.programsize(-1));
+		assertEquals(7, p.programsize(-2));
+		
+		assertEquals(14, p.programsize(0));
+		assertEquals(13, p.programsize(1));
+		assertEquals(12, p.programsize(2));
+		assertEquals(11, p.programsize(3));
+		assertEquals(7, p.programsize(4));
+		
+		assertEquals(6, p.programsize(5));
+		
+		assertEquals(0, p.programsize(6));	
+	}
+	
+	public void testProgramsizeWithStartAndRange() throws Exception {
+		Program p = new Program();
+		
+		p.Parse( "(  A B C (1 2 3) A (4 5 C (F))  )" );
+		
+		assertEquals(6, p.size());
+		
+		assertEquals(6, p.programsize(-1, 1));
+		assertEquals(1, p.programsize(-2, 1));
+		assertEquals(7, p.programsize(-2, 2));
+		
+		assertEquals(0, p.programsize(0, 0));
+		assertEquals(0, p.programsize(0, -1));
+		assertEquals(1, p.programsize(0, 1));
+		assertEquals(2, p.programsize(0, 2));
+		assertEquals(2, p.programsize(1, 2));
+		assertEquals(6, p.programsize(1, 3));
+		
+		assertEquals(14, p.programsize(0, 3000));
+		assertEquals(6, p.programsize(-1, 123));
+		assertEquals(7, p.programsize(-2, 234));
+		
+		assertEquals(14, p.programsize(0, 456));
+		assertEquals(13, p.programsize(1, 567));
+		assertEquals(12, p.programsize(2, 34));
+		assertEquals(11, p.programsize(3, 565));
+		assertEquals(7, p.programsize(4, 56));
+	}
+	
+	public void testCopyWithStartPoint() throws Exception {
+		Program p = new Program();
+		p.Parse( "(  A B C (1 2 3) A (4 5 C (F))  )" );
+		
+		assertEquals(new Program("( A B C (1 2 3) A (4 5 C (F)) )"),p.Copy(0));
+		assertEquals(new Program("( B C (1 2 3) A (4 5 C (F)) )"),p.Copy(1));
+		assertEquals(new Program("( (1 2 3) A (4 5 C (F)) )"),p.Copy(3));
+		assertEquals(new Program("( A (4 5 C (F)) )"),p.Copy(-2));
+		assertEquals(new Program("( (4 5 C (F)) )"),p.Copy(-1));
+		assertEquals(new Program("( )"),p.Copy(234));
+	}
 
+	public void testCopyWithStartPointAndRange() throws Exception {
+		Program p = new Program();
+		p.Parse( "(  A B C (1 2 3) A (4 5 C (F))  )" );
+		
+		assertEquals(new Program("( (4 5 C (F)) )"),p.Copy(-1, 1));
+		assertEquals(new Program("( (4 5 C (F)) )"),p.Copy(-1, 2));
+		
+		assertEquals(new Program("( A )"),p.Copy(-2, 1));
+		assertEquals(new Program("( A (4 5 C (F)) )"),p.Copy(-2, 2));
+		assertEquals(new Program("( A (4 5 C (F)) )"),p.Copy(-2, 3));
+		
+		assertEquals(new Program("( A B )"),p.Copy(0, 2));
+		assertEquals(new Program("( B C )"),p.Copy(1, 2));
+		assertEquals(new Program("( C (1 2 3))"),p.Copy(2, 2));
+		assertEquals(new Program("( A B C (1 2 3) A )"),p.Copy(0, 5));
+
+		assertEquals(new Program("( A B C (1 2 3) A (4 5 C (F)) )"),p.Copy(0, 6));
+		assertEquals(new Program("( A B C (1 2 3) A (4 5 C (F)) )"),p.Copy(0, 3452345));
+		assertEquals(new Program("( B C (1 2 3) A (4 5 C (F)) )"),p.Copy(1, 234534));
+		assertEquals(new Program("( (1 2 3) A (4 5 C (F)) )"),p.Copy(3, 3455));
+		assertEquals(new Program("( A (4 5 C (F)) )"),p.Copy(-2, 3456));
+		assertEquals(new Program("( (4 5 C (F)) )"),p.Copy(-1, 345));
+		assertEquals(new Program("( )"),p.Copy(234, 4565));		
+	}
+	
 }

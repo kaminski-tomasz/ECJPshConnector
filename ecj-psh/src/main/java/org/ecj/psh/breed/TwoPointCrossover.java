@@ -9,10 +9,24 @@ import ec.util.Parameter;
 public class TwoPointCrossover extends CrossoverPipeline {
 
 	public static final String P_TWOPOINT = "two-point-xover";
+	public static final String P_REPLACEMENTLENGTH = "replacement-length";
+	
+	/** Length of the replaced part */ 
+	public int replacementLength;
 	
 	@Override
 	public Parameter defaultBase() {
 		return PshBreedDefaults.base().push(P_TWOPOINT);
+	}
+
+	@Override
+	public void setup(EvolutionState state, Parameter base) {
+		super.setup(state, base);
+		Parameter def = defaultBase();
+		// length of the replaced part. 0 means that it can be any value
+		replacementLength = state.parameters.getInt(
+				base.push(P_REPLACEMENTLENGTH), def.push(P_REPLACEMENTLENGTH),
+				1);
 	}
 
 	/**
@@ -27,96 +41,81 @@ public class TwoPointCrossover extends CrossoverPipeline {
 		int maxPointsInProgram = ((PshEvolutionState) state).interpreter[thread]
 				.getMaxPointsInProgram();
 		
-		int parent1size = parents[0].program.size();
-		int parent2size = parents[1].program.size();
+		Program p1 = parents[0].program;
+		Program p2 = parents[1].program;
+
+		int p1Length = p1.size(), p2Length = p2.size();
 
 		// check if we can crossover
-		if (parent1size <= 0 || parent2size <= 0)
+		if (p1Length <= 0 || p2Length <= 0 || p1Length < replacementLength
+				|| p2Length < replacementLength)
 			return;
 
 		// choose cutpoints
-		int[] cutpoints1 = new int[2];
-		int[] cutpoints2 = new int[2];
-		int parent1slice = 0, parent2slice = 0, child1size = 0, child2size = 0;
+		int[] p1cutpoint = new int[2], p2cutpoint = new int[2];
+
 		if (!homologous) {
-			int numOfTries = this.tries;
+			int p1Size = p1.programsize();
+			int p2Size = p2.programsize();
+			int remainingTries = tries;
+			boolean isSizeCorrect;
 			do {
-				parent1slice = findCuttingPoints(parent1size, cutpoints1,
-						state, thread);
-				do {
-					numOfTries--;
-					parent2slice = findCuttingPoints(parent2size, cutpoints2,
-							state, thread);
-					child1size = parent1size - parent1slice + parent2slice;
-				} while (numOfTries != 0 && 
-						child1size > maxPointsInProgram);
-				child2size = parent2size - parent2slice + parent1slice;
-			} while (numOfTries != 0 && 
-					(breedSecondParent && child2size > maxPointsInProgram));
-			if (numOfTries == 0
-					&& (child1size > maxPointsInProgram || 
-							(breedSecondParent && child2size > maxPointsInProgram))) {
+				findCuttingPoint(p1Length, p1cutpoint, state, thread);
+				findCuttingPoint(p2Length, p2cutpoint, state, thread);
+				int p1ReplacedSize = p1.programsize(p1cutpoint[0], p1cutpoint[1]);
+				int p2ReplacedSize = p2.programsize(p2cutpoint[0], p2cutpoint[1]);
+				isSizeCorrect = (p1Size - p1ReplacedSize + p2ReplacedSize <= maxPointsInProgram)
+						&& (!breedSecondParent || (p2Size - p2ReplacedSize
+								+ p1ReplacedSize <= maxPointsInProgram));
+			} while (--remainingTries != 0 && !isSizeCorrect);
+			if (remainingTries == 0 && !isSizeCorrect) {
 				// giving up...
 				return;
 			}
 		} else {
-			parent1slice = parent2slice = findCuttingPoints(Math.min(parent1size, parent2size), 
-					cutpoints1, state, thread);
-			cutpoints2 = cutpoints1;
+			findCuttingPoint(Math.min(p1Length, p2Length), 
+					p1cutpoint, state, thread);
+			p2cutpoint = p1cutpoint;
 		}
 		
-		Program child1 = new Program(), child2 = new Program();
-		// breed first parent
-		for (int index1 = 0; index1 < cutpoints1[0]; index1++) {
-			child1.push(parents[0].program.peek(index1));
-		}
-		for (int index2 = cutpoints2[0]; index2 <= cutpoints2[1]; index2++) {
-			child1.push(parents[1].program.peek(index2));
-		}
-		for (int index1 = cutpoints1[1]+1; index1 < parent1size; index1++) {
-			child1.push(parents[0].program.peek(index1));
-		}
-
-		// breed second parent
+		Program o1 = null, o2 = null;		
+		o1 = p1.Copy(0, p1cutpoint[0]);					// prefix part
+		p2.CopyTo(o1, p2cutpoint[0], p2cutpoint[1]);	// replaced part
+		p1.CopyTo(o1, p1cutpoint[0] + p1cutpoint[1]);	// suffix part
+		
 		if (breedSecondParent) {
-			for (int index2 = 0; index2 < cutpoints2[0]; index2++) {
-				child2.push(parents[1].program.peek(index2));
-			}
-			for (int index1 = cutpoints1[0]; index1 <= cutpoints1[1]; index1++) {
-				child2.push(parents[0].program.peek(index1));
-			}
-			for (int index2 = cutpoints2[1]+1; index2 < parent2size; index2++) {
-				child2.push(parents[1].program.peek(index2));
-			}
+			o2 = p2.Copy(0, p2cutpoint[0]);					// prefix part
+			p1.CopyTo(o2, p1cutpoint[0], p1cutpoint[1]);	// replaced part
+			p2.CopyTo(o2, p2cutpoint[0] + p2cutpoint[1]);	// suffix part	
 		}
-
-		parents[0].program = child1;
+		parents[0].program = o1;
 		parents[0].evaluated = false;
-
 		if (breedSecondParent) {
-			parents[1].program = child2;
+			parents[1].program = o2;
 			parents[1].evaluated = false;
 		}
 	}
 	
 	/**
-	 * Generate cutting points for 2PX.
-	 * @param parentSize length of a parent program
-	 * @param cutpoints array with two cutting points being generated
-	 * @param state
-	 * @param thread
-	 * @return the length of the slice 
+	 * Generate cutting point for 2PX.
+	 * 
+	 * @param parentLength
+	 *            length of the parent program root stack
+	 * @param cutpoint
+	 *            array with two numbers: starting point and length of the
+	 *            replacement
 	 */
-	public int findCuttingPoints(int parentSize, int[] cutpoints,
+	public void findCuttingPoint(int parentLength, int[] cutpoint,
 			EvolutionState state, int thread) {
-		cutpoints[0] = state.random[thread].nextInt(parentSize);
-		cutpoints[1] = state.random[thread].nextInt(parentSize);
-		if (cutpoints[0] > cutpoints[1]) {
-			int temp = cutpoints[0];
-			cutpoints[0] = cutpoints[1];
-			cutpoints[1] = temp;
+		if (replacementLength > 0) {
+			cutpoint[0] = state.random[thread].nextInt(parentLength
+					- (replacementLength - 1));
+			cutpoint[1] = replacementLength;
+		} else {
+			cutpoint[0] = state.random[thread].nextInt(parentLength);
+			cutpoint[1] = state.random[thread].nextInt(parentLength
+					- cutpoint[0]) + 1;
 		}
-		return cutpoints[1] - cutpoints[0] + 1;
 	}
 
 }

@@ -63,7 +63,7 @@ public abstract class CrossoverPipeline extends PshBreedingPipeline {
 		
 		// tries = 0 means that we're trying to find the cutpoints in the infinity loop
 		tries = state.parameters.getIntWithDefault(base.push(P_TRIES),
-				def.push(P_TRIES), 0);
+				def.push(P_TRIES), 100);
 	}
 
 	/**

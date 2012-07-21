@@ -156,6 +156,55 @@ public class Program extends ObjectStack implements Serializable {
 
 		return size;
 	}
+	
+	/**
+	 * Returns the size of the program and all subprograms from starting
+	 * position in root stack
+	 * 
+	 * @return The size of the program.
+	 */
+	public int programsize(int start) {
+		while (start < 0) 
+			start += _size;
+		if (start >= _size)
+			return 0;
+		int size = _size - start;
+
+		for (int n = start; n < _size; n++) {
+			Object o = _stack[n];
+			if (o instanceof Program)
+				size += ((Program) o).programsize();
+		}
+		
+		return size;
+	}
+	
+	/**
+	 * Returns the size of the program and all subprograms from starting
+	 * position in root stack and given range
+	 * 
+	 * @return The size of the program.
+	 */
+	public int programsize(int start, int range) {
+		if (range <= 0)
+			return 0;
+		while (start < 0)
+			start += _size;
+		if (start >= _size)
+			start = _size - 1;
+		if (start + range > _size) {
+			range = _size - start;
+		}
+		int size = range;
+
+		for (int n = start; n < start + range && n < _size; n++) {
+			Object o = _stack[n];
+			if (o instanceof Program)
+				size += ((Program) o).programsize();
+		}
+
+		return size;
+	}
 
 	/**
 	 * Returns the size of a subtree.
@@ -304,14 +353,16 @@ public class Program extends ObjectStack implements Serializable {
 	/**
 	 * Copies this program to another.
 	 * 
-	 * @param size
-	 *            how many nodes of the root stack should be copied
+	 * @param start
+	 *            starting position
 	 * @param inOther
 	 *            The program to receive the copy of this program fragment
 	 */
 
-	public void CopyTo(Program inOther, int size) {
-		for (int n = 0; n < size && n < _size; n++)
+	public void CopyTo(Program inOther, int start) {
+		while (start < 0)
+			start += _size;
+		for (int n = start; n < _size; n++)
 			inOther.push(_stack[n]);
 	}
 
@@ -320,14 +371,16 @@ public class Program extends ObjectStack implements Serializable {
 	 * 
 	 * @param start
 	 *            starting position
-	 * @param size
+	 * @param length
 	 *            how many nodes of the root stack should be copied
 	 * @param inOther
 	 *            The program to receive the copy of this program fragment
 	 */
 
-	public void CopyTo(Program inOther, int start, int size) {
-		for (int n = start; n - start < size && n - start < _size; n++)
+	public void CopyTo(Program inOther, int start, int length) {
+		while (start < 0)
+			start += _size;
+		for (int n = start; n < start + length && n < _size; n++)
 			inOther.push(_stack[n]);
 	}
 
@@ -347,15 +400,15 @@ public class Program extends ObjectStack implements Serializable {
 	/**
 	 * Copies this program to the new one.
 	 * 
-	 * @param size
-	 *            how many nodes of the root stack should be copied
+	 * @param start
+	 *            starting position
 	 * @param inOther
 	 *            The program to receive the copy of this program fragment
 	 */
 
-	public Program Copy(int size) {
+	public Program Copy(int start) {
 		Program inOther = new Program();
-		this.CopyTo(inOther, size);
+		this.CopyTo(inOther, start);
 		return inOther;
 	}
 
@@ -364,15 +417,15 @@ public class Program extends ObjectStack implements Serializable {
 	 * 
 	 * @param start
 	 *            starting position
-	 * @param size
+	 * @param length
 	 *            how many nodes of the root stack should be copied
 	 * @param inOther
 	 *            The program to receive the copy of this program fragment
 	 */
 
-	public Program Copy(int start, int size) {
+	public Program Copy(int start, int length) {
 		Program inOther = new Program();
-		this.CopyTo(inOther, start, size);
+		this.CopyTo(inOther, start, length);
 		return inOther;
 	}
 	
