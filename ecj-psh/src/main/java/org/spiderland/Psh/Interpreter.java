@@ -1052,6 +1052,14 @@ public class Interpreter implements Prototype {
 		this._generateFlatPrograms = _generateFlatPrograms;
 	}
 	
+	public int getTotalStepsTaken() {
+		return _totalStepsTaken;
+	}
+
+	public long getEvaluationExecutions() {
+		return _evaluationExecutions;
+	}
+
 	public abstract class AtomGenerator implements Serializable {
 		private static final long serialVersionUID = 1L;
 
