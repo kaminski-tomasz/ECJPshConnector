@@ -564,10 +564,24 @@ public class Interpreter implements Prototype {
 	 */
 
 	public int Execute(Program inProgram, int inMaxSteps) {
-		_evaluationExecutions++;
-		LoadProgram(inProgram); // Initializes program
-		return Step(inMaxSteps);
+		return Execute(inProgram, inMaxSteps, true);
 	}
+	
+	/**
+	 * Executes a Push program with a given instruction limit.
+	 * 
+	 * @param inMaxSteps
+	 *            The maximum number of instructions allowed to be executed.
+	 * @param countSteps should steps be counted
+	 * @return The number of instructions executed.
+	 */
+
+	public int Execute(Program inProgram, int inMaxSteps, boolean countSteps) {
+		if (countSteps)
+			_evaluationExecutions++;
+		LoadProgram(inProgram); // Initializes program
+		return Step(inMaxSteps, countSteps);
+	}	
 
 	/**
 	 * Loads a Push program into the interpreter's exec and code stacks.
@@ -593,6 +607,23 @@ public class Interpreter implements Prototype {
 	 */
 
 	public int Step(int inMaxSteps) {
+		return Step(inMaxSteps, true);
+	}	
+	
+	/**
+	 * Steps a Push interpreter forward with a given instruction limit.
+	 * 
+	 * This method assumes that the intepreter is already setup with an active
+	 * program (typically using \ref Execute).
+	 * 
+	 * @param inMaxSteps
+	 *            The maximum number of instructions allowed to be executed.
+	 * @param countSteps
+	 *            should steps be counted
+	 * @return The number of instructions executed.
+	 */
+
+	public int Step(int inMaxSteps, boolean countSteps) {
 		int executed = 0;
 		while (inMaxSteps != 0 && _execStack.size() > 0) {
 			if (ExecuteInstruction(_execStack.pop()) == -1)
@@ -601,7 +632,8 @@ public class Interpreter implements Prototype {
 			executed++;
 		}
 
-		_totalStepsTaken += executed;
+		if (countSteps)
+			_totalStepsTaken += executed;
 
 		return executed;
 	}
