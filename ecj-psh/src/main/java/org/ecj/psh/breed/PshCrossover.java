@@ -26,8 +26,14 @@ public class PshCrossover extends CrossoverPipeline {
 			return;
 		
 		// crossover by swap subtrees
-		int index1 = state.random[thread].nextInt(parent1size);
-		int index2 = state.random[thread].nextInt(parent2size);
+		int index1, index2;
+		if (!homologous) {
+			index1 = state.random[thread].nextInt(parent1size);
+			index2 = state.random[thread].nextInt(parent2size);
+		} else {
+			index1 = index2 = state.random[thread].nextInt(Math.min(
+					parent1size, parent2size));
+		}
 
 		Object subtree1 = parents[0].program.Subtree(index1);
 		Object subtree2 = parents[1].program.Subtree(index2);

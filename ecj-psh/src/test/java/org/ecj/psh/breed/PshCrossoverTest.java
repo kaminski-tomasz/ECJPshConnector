@@ -70,9 +70,42 @@ public class PshCrossoverTest extends CrossoverTest {
 		);
 	}
 	
+
+	@Test
+	public void _PSHX_homologous() throws Exception {
+		System.out.println("*** PSHX homologous:");
+		
+		this.crossover.homologous = true;
+		
+		// cutpoints: 0
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 0 );
+		do_crossover_test(
+			new String[]{ "( A1 )", "( B1 B2 B3 B4 )" },
+			new String[]{ "( B1 )", "( A1 B2 B3 B4 )" },
+			true
+		);
+		
+		// cutpoints: 1
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 1 );
+		do_crossover_test(
+			new String[]{ "( A1 A2 A3 A4 )", "( B1 B2 B3 B4 )" },
+			new String[]{ "( A1 B2 A3 A4 )", "( B1 A2 B3 B4 )" },
+			true
+		);
+		// cutpoints: 3
+		when(stateRandom[0].nextInt(anyInt())).thenReturn( 3 );
+		do_crossover_test(
+			new String[]{ "( A1 A2 A3 (A4 A5) )", "( B1 B2 B3 B4 )" },
+			new String[]{ "( A1 A2 A3 B4 )", "( B1 B2 B3 (A4 A5) )" },
+			true
+		);
+	}
+	
+	
 	@Test
 	public void _PSHX_test_swapping_nested_subtrees() throws Exception {
 		System.out.println("*** PSHX test swapping nested subtrees:");
+		this.crossover.homologous = false;
 
 		// cutpoints: 5, 7
 		when(stateRandom[0].nextInt(anyInt())).thenReturn( 5, 7 );
