@@ -1,10 +1,13 @@
 
 ECJ-Psh - integration of the Psh library with ECJ
 
-Psh: https://github.com/jonklein/Psh
-ECJ: http://cs.gmu.edu/~eclab/projects/ecj/
+* Psh: https://github.com/jonklein/Psh
+* ECJ: http://cs.gmu.edu/~eclab/projects/ecj/
 
-===============================================================
+Author: 	Tomasz Kamiński
+Contributor:	Piotr Jessa
+
+==================================================================
 Copyright 2009-2010 Tomasz Kamiński
 
 Licensed under the Apache License, Version 2.0 (the "License");
